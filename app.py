@@ -35,9 +35,9 @@ df = load_data()
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/3774/3774299.png", width=100) # ไอคอนสุขภาพ
     st.title("User Profile")
-    st.write("**รหัส:** [ใส่รหัสของคุณ]")
-    st.write("**ชื่อ:** [ใส่ชื่อของคุณ]")
-    st.write("**หมู่เรียน:** [ใส่หมู่เรียนของคุณ]")
+    st.write("**รหัส:** [ุ664245019]")
+    st.write("**ชื่อ:** [นายคณิศร จันทรสูตร]")
+    st.write("**หมู่เรียน:** [664245019]")
     st.markdown("---")
     st.header("📋 ป้อนข้อมูลสุขภาพ")
     # ปรับ Input ให้ใช้ง่ายขึ้น
