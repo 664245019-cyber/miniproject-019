@@ -12,36 +12,31 @@ from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# ตั้งค่าหน้าเว็บให้เป็นแบบ Wide
-st.set_page_config(page_title="Diabetes AI Modern Report", page_icon="🩺", layout="wide")
+st.set_page_config(page_title="Diabetes AI Report", page_icon="🩺", layout="wide")
 
-# --- CUSTOM CSS สำหรับแต่งธีม Modern Dashboard ---
+# --- ปรับ CSS ใหม่ให้อ่านง่าย ตัวหนังสือชัดเจน ---
 st.markdown("""
     <style>
-    /* เปลี่ยนสีพื้นหลังหลักของแอป */
     .main {
         background-color: #0f172a;
         color: #f8fafc;
     }
-    /* ปรับแต่ง Sidebar ให้ดูโมเดล คลีนๆ มืดๆ สวยหรู */
     [data-testid="stSidebar"] {
         background-color: #1e293b;
-        color: #ffffff;
     }
-    /* ปรับแต่งหัวข้อและตัวอักษรใน Sidebar ให้เด่นชัด */
-    [data-testid="stSidebar"] .css-17lntkn, [data-testid="stSidebar"] span {
-        color: #f1f5f9;
-    }
-    /* สร้างสไตล์ Card สำหรับครอบเนื้อหา */
+    /* แก้ไขสีการ์ดให้ตัวหนังสือสว่างและอ่านง่าย */
     .card {
         background-color: #1e293b;
-        padding: 20px;
+        padding: 25px;
         border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         margin-bottom: 20px;
         border: 1px solid #334155;
+        color: #f8fafc !important;
     }
-    /* ตกแต่งปุ่มกดให้มีความโค้งมนและสีสันทันสมัย */
+    .card p, .card li, .card b {
+        color: #f8fafc !important;
+    }
     .stButton>button {
         width: 100%;
         border-radius: 8px;
@@ -51,15 +46,6 @@ st.markdown("""
         font-weight: bold;
         border: none;
         box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-        box-shadow: 0 6px 15px rgba(59, 130, 246, 0.5);
-    }
-    /* ปรับแต่งตารางและ DataFrame ให้เข้ากับธีมมืด */
-    dataframe {
-        border-radius: 8px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -85,7 +71,7 @@ X_test_scaled = scaler.transform(X_test)
 
 model = SVC(kernel='linear').fit(X_train_scaled, y_train)
 
-# --- Sidebar (Modern Menu Bar) ---
+# --- Sidebar ---
 with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: #38bdf8;'>🩺 AI Dashboard</h2>", unsafe_allow_html=True)
     st.markdown("---")
@@ -100,11 +86,11 @@ with st.sidebar:
     st.caption("👤 ชื่อ: นายคณิศร จันทรสูตร")
     st.caption("🏫 หมู่เรียน: 66/43")
 
-# --- หน้า Content แบบ Modern ---
+# --- หน้า Content ---
 if menu == "หน้าหลัก":
     st.title("🩺 Diabetes Prediction & AI Analytics")
     st.markdown("#### ระบบวิเคราะห์และทำนายโรคเบาหวานด้วย Machine Learning สมัยใหม่")
-    st.write("ยินดีต้อนรับสู่รายงานสรุปโปรเจ็คเชิงวิเคราะห์ ออกแบบด้วยธีม Modern Dashboard ทันสมัยและใช้งานง่าย")
+    st.write("ยินดีต้อนรับสู่รายงานสรุปโปรเจ็คเชิงวิเคราะห์ ออกแบบด้วยธีม Modern Dashboard ทันสมัยและอ่านง่าย")
     st.image("https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80", use_container_width=True)
 
 elif menu == "1. ปัญหาและ Dataset":
