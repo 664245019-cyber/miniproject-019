@@ -44,9 +44,9 @@ with st.sidebar:
     )
     st.markdown("---")
     st.subheader("👨‍💻 ข้อมูลผู้พัฒนา")
-    st.caption("รหัส: [ใส่รหัสของคุณ]")
-    st.caption("ชื่อ: [ใส่ชื่อของคุณ]")
-    st.caption("หมู่เรียน: [ใส่หมู่เรียนของคุณ]")
+    st.caption("รหัส: [664245019]")
+    st.caption("ชื่อ: [นายคณิศร จันทรสูตร]")
+    st.caption("หมู่เรียน: [66/43]")
 
 # --- หน้า Content ---
 if menu == "หน้าหลัก":
