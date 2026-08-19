@@ -14,7 +14,7 @@ import seaborn as sns
 
 st.set_page_config(page_title="Diabetes AI Report", page_icon="🩺", layout="wide")
 
-# --- ปรับ CSS ---
+# --- ปรับ CSS ให้ปุ่มใน Sidebar เป็นการ์ดมนๆ สวยๆ แบบในรูปเพื่อน ---
 st.markdown("""
     <style>
     .main {
@@ -22,7 +22,7 @@ st.markdown("""
         color: #f8fafc;
     }
     [data-testid="stSidebar"] {
-        background-color: #1e293b;
+        background-color: #1e1b4b; /* โทนสีม่วงเข้มหรูหราแบบในภาพ */
     }
     [data-testid="stSidebar"] span, 
     [data-testid="stSidebar"] label, 
@@ -32,9 +32,23 @@ st.markdown("""
     [data-testid="stSidebar"] h2 {
         color: #f8fafc !important;
     }
-    [data-testid="stSidebar"] .stRadio label {
-        color: #38bdf8 !important;
-        font-weight: 500;
+    /* ปรับแต่งปุ่มใน Sidebar ให้เป็นทรงโค้งมนเหมือนการ์ด */
+    [data-testid="stSidebar"] .stButton>button {
+        width: 100%;
+        border-radius: 12px;
+        height: 3.2em;
+        background-color: #ffffff;
+        color: #1e1b4b !important;
+        font-weight: bold;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: 0.3s;
+        text-align: left;
+        margin-bottom: 8px;
+    }
+    [data-testid="stSidebar"] .stButton>button:hover {
+        background-color: #e2e8f0;
+        color: #0f172a !important;
     }
     .card {
         background-color: #1e293b;
@@ -49,14 +63,12 @@ st.markdown("""
         color: #f8fafc !important;
     }
     .stButton>button {
-        width: 100%;
         border-radius: 8px;
         height: 3em;
         background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
         color: white;
         font-weight: bold;
         border: none;
-        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -84,24 +96,45 @@ models = {
     "KNN": KNeighborsClassifier(),
     "Decision Tree": DecisionTreeClassifier(random_state=42),
     "Regression (Logistic)": LogisticRegression(max_iter=500),
-    "SVM": SVC(kernel='linear', probability=True), # เปิด probability=True เพื่อให้คำนวณ % ความมั่นใจได้
+    "SVM": SVC(kernel='linear', probability=True),
     "Ensemble (Random Forest)": RandomForestClassifier(random_state=42)
 }
 
-# --- Sidebar ---
+# --- จัดการสถานะหน้า (Session State) สำหรับปุ่มเมนู ---
+if 'menu' not in st.session_state:
+    st.session_state.menu = "หน้าหลัก"
+
+# --- Sidebar แบบปุ่มกดการ์ด ---
 with st.sidebar:
-    st.markdown("<h2 style='text-align: center; color: #38bdf8;'>🩺 AI Dashboard</h2>", unsafe_allow_html=True)
-    st.markdown("---")
-    menu = st.radio(
-        "📂 เลือกหัวข้อรายงาน:",
-        ["หน้าหลัก", "1. ปัญหาและ Dataset", "2. Data Preprocessing", "3. สร้างโมเดล ML", "4. ประเมินโมเดล", "5. เว็บแอปใช้งาน"],
-        index=0
-    )
-    st.markdown("---")
-    st.markdown("### 👨‍💻 ผู้พัฒนาโปรเจ็ค")
-    st.caption("🆔 รหัส: 664245019")
-    st.caption("👤 ชื่อ: นายคณิศร จันทรสูตร")
-    st.caption("🏫 หมู่เรียน: 66/43")
+    # รูปโปรไฟล์ (ใช้อิโมจิหรือลิงก์รูปก็ได้ครับ ตรงนี้ผมทำวงกลมจำลองสไตล์เพื่อนให้)
+    st.markdown("""
+        <div style="text-align: center; padding-bottom: 10px;">
+            <div style="width: 100px; height: 100px; border-radius: 50%; background-color: #38bdf8; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                👨‍💻
+            </div>
+            <h3 style="margin: 0; color: white;">นายคณิศร จันทรสูตร</h3>
+            <p style="color: #94a3b8; font-size: 14px; margin: 5px 0;">Computer Science Student</p>
+            <p style="color: #cbd5e1; font-size: 13px;">รหัส 664245019 • หมู่ 66/43</p>
+        </div>
+        <hr style="border-color: #334155;">
+        <h4 style="color: #38bdf8; font-size: 16px; margin-bottom: 10px;">📌 เมนูโครงงาน</h4>
+    """, unsafe_allow_html=True)
+    
+    # สร้างปุ่มเมนูเรียงลงมาแทน Radio
+    if st.button("🏠 ภาพรวมโครงงาน", use_container_width=True):
+        st.session_state.menu = "หน้าหลัก"
+    if st.button("📊 ปัญหาและ Dataset", use_container_width=True):
+        st.session_state.menu = "1. ปัญหาและ Dataset"
+    if st.button("🧹 Data Preprocessing", use_container_width=True):
+        st.session_state.menu = "2. Data Preprocessing"
+    if st.button("🧠 ทฤษฎีของโมเดล", use_container_width=True):
+        st.session_state.menu = "3. สร้างโมเดล ML"
+    if st.button("📈 ประเมินและเปรียบเทียบ", use_container_width=True):
+        st.session_state.menu = "4. ประเมินโมเดล"
+    if st.button("🔮 ทดลองทำนาย", use_container_width=True):
+        st.session_state.menu = "5. เว็บแอปใช้งาน"
+
+menu = st.session_state.menu
 
 # --- หน้า Content ---
 if menu == "หน้าหลัก":
@@ -202,8 +235,8 @@ elif menu == "5. เว็บแอปใช้งาน":
             for name, m in models.items():
                 m.fit(X_train_scaled, y_train)
                 pred = m.predict(scaled_input)[0]
-                prob = m.predict_proba(scaled_input)[0] # ดึงค่าความน่าจะเป็น
-                confidence = prob[pred] * 100 # คำนวณ % ความมั่นใจของผลลัพธ์นั้น
+                prob = m.predict_proba(scaled_input)[0]
+                confidence = prob[pred] * 100
                 
                 status = "🚨 พบความเสี่ยง" if pred == 1 else "✅ ปกติ"
                 compare_results.append({
