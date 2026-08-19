@@ -8,7 +8,8 @@ from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-st.set_page_config(page_title="Diabetes AI Project", layout="wide")
+# ตั้งค่าหน้าเว็บ
+st.set_page_config(page_title="Diabetes AI Report", page_icon="🩺", layout="centered")
 
 # โหลดข้อมูล
 @st.cache_data
@@ -27,56 +28,61 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 model = SVC(kernel='linear').fit(X_scaled, y)
 
-# --- Sidebar เมนู ---
-st.sidebar.title("📌 เมนูรายงานโปรเจ็ค")
-menu = st.sidebar.radio("เลือกหัวข้อนำเสนอ:", 
+# --- Sidebar ---
+st.sidebar.title("📑 เมนูโปรเจ็ค")
+# ใช้ Selectbox แทน Radio Button (ดูคลีนกว่า)
+menu = st.sidebar.selectbox("เลือกหัวข้อนำเสนอ:", 
     ["หน้าหลัก", "1. การกำหนดปัญหา", "2. Data Preprocessing", "3. สร้างโมเดล ML", "4. ประเมินโมเดล", "5. โปรแกรมใช้งาน"])
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 👨‍💻 ข้อมูลผู้พัฒนา")
-st.sidebar.write("รหัส: [ใส่รหัส]")
-st.sidebar.write("ชื่อ: [ใส่ชื่อ]")
-st.sidebar.write("หมู่เรียน: [ใส่หมู่เรียน]")
+st.sidebar.markdown("### 👤 ข้อมูลผู้พัฒนา")
+st.sidebar.caption("รหัส: [ใส่รหัสของคุณ]")
+st.sidebar.caption("ชื่อ: [ใส่ชื่อของคุณ]")
+st.sidebar.caption("หมู่เรียน: [ใส่หมู่เรียนของคุณ]")
 
-# --- หน้า Content ตามเมนู ---
+# --- Main Content ---
 if menu == "หน้าหลัก":
     st.title("🩺 Diabetes Prediction Project")
-    st.write("ยินดีต้อนรับสู่รายงานสรุปผลโปรเจ็คทำนายโรคเบาหวานด้วย Machine Learning")
-    st.info("ใช้เมนูด้านซ้ายมือเพื่อเลือกดูเนื้อหาตามหัวข้อที่กำหนด 1-5")
+    st.success("ยินดีต้อนรับสู่รายงานสรุปผล Machine Learning")
+    st.write("เลือกหัวข้อจากเมนูด้านซ้ายเพื่อเริ่มต้นการนำเสนอ")
 
 elif menu == "1. การกำหนดปัญหา":
-    st.subheader("1. การกำหนดปัญหาและ Dataset")
-    st.write("- **ปัญหา:** เบาหวานเป็นโรคที่ต้องคัดกรองเบื้องต้นเพื่อลดความเสี่ยง")
-    st.write("- **Dataset:** ใช้ Pima Indians Diabetes Database เนื่องจากมีความเป็นมาตรฐานและตัวแปรครอบคลุมสุขภาพ")
+    st.header("1. การกำหนดปัญหาและ Dataset")
+    st.info("ปัญหา: การตรวจคัดกรองเบาหวานเบื้องต้นช่วยลดภาวะแทรกซ้อนได้")
+    st.write("**Dataset:** เลือกใช้ Pima Indians Diabetes Database เนื่องจากเป็นชุดข้อมูลมาตรฐานสากลที่มีตัวแปรทางสุขภาพครบถ้วน")
 
 elif menu == "2. Data Preprocessing":
-    st.subheader("2. Data Preprocessing")
-    st.write("มีการจัดการข้อมูลดังนี้:")
-    st.code("df[cols].replace(0, np.nan) # แก้ไขค่า 0 ที่เป็นข้อมูลผิดพลาด\ndf.fillna(df.mean()) # เติมค่าว่างด้วยค่าเฉลี่ย", language='python')
-    st.dataframe(df.head())
+    st.header("2. Data Preprocessing")
+    st.write("ขั้นตอนการเตรียมข้อมูล:")
+    st.code("1. แทนที่ค่า 0 ด้วยค่าเฉลี่ย (Mean)\n2. ทำ Feature Scaling ด้วย StandardScaler", language='python')
+    st.dataframe(df.head(), use_container_width=True)
 
 elif menu == "3. สร้างโมเดล ML":
-    st.subheader("3. การสร้างโมเดล Machine Learning")
-    st.write("เลือกใช้ **Support Vector Machine (SVM)**")
-    st.latex(r'''หลักการ: หาเส้นแบ่ง (Hyperplane) ที่สร้างระยะห่าง (Margin) ระหว่างข้อมูลสองกลุ่มให้กว้างที่สุด''')
+    st.header("3. การสร้างโมเดล Machine Learning")
+    st.write("เลือกใช้โมเดล **Support Vector Machine (SVM)**")
+    st.write("ทฤษฎี: ใช้ Hyperplane แยกข้อมูลสองกลุ่ม (เป็น/ไม่เป็นเบาหวาน) โดยเพิ่มระยะ Margin ให้กว้างที่สุดเพื่อความแม่นยำ")
 
 elif menu == "4. ประเมินโมเดล":
-    st.subheader("4. การประเมินและเปรียบเทียบโมเดล")
-    st.metric("ความแม่นยำ (Accuracy)", f"{accuracy_score(y, model.predict(X_scaled))*100:.2f}%")
-    fig, ax = plt.subplots()
+    st.header("4. การประเมินและเปรียบเทียบโมเดล")
+    acc = accuracy_score(y, model.predict(X_scaled))
+    st.metric("ความแม่นยำ (Accuracy)", f"{acc*100:.2f}%")
+    fig, ax = plt.subplots(figsize=(5,3))
     sns.heatmap(pd.crosstab(y, model.predict(X_scaled)), annot=True, fmt='d', cmap='Blues')
     st.pyplot(fig)
 
 elif menu == "5. โปรแกรมใช้งาน":
-    st.subheader("5. Streamlit Application")
-    st.write("กรอกข้อมูลด้านล่างเพื่อทำนายผล")
-    col1, col2 = st.columns(2)
-    p = col1.number_input('ตั้งครรภ์', 0, 20, 1)
-    g = col1.number_input('ระดับน้ำตาล', 0, 200, 120)
-    bp = col2.number_input('ความดัน', 0, 140, 70)
-    bmi = col2.number_input('BMI', 0.0, 70.0, 25.0)
+    st.header("5. Streamlit Application")
+    st.write("ทดลองกรอกข้อมูลเพื่อทำนายผล")
     
-    if st.button("ทำนายผล"):
+    with st.form("predict_form"):
+        col1, col2 = st.columns(2)
+        p = col1.number_input('จำนวนครั้งที่ตั้งครรภ์', 0, 20, 1)
+        g = col1.number_input('ระดับน้ำตาล', 0, 200, 120)
+        bp = col2.number_input('ความดัน', 0, 140, 70)
+        bmi = col2.number_input('BMI', 0.0, 70.0, 25.0)
+        submit = st.form_submit_button("ทำนายผลความเสี่ยง")
+        
+    if submit:
         res = model.predict(scaler.transform([[p,g,bp,20,79,bmi,0.5,30]]))
-        if res[0] == 1: st.error("มีความเสี่ยง")
-        else: st.success("ปกติ")
+        if res[0] == 1: st.error("⚠️ พบความเสี่ยงเป็นโรคเบาหวาน")
+        else: st.success("✅ ไม่พบความเสี่ยง (ปกติ)")
