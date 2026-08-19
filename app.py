@@ -80,12 +80,11 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# เตรียม dictionary ของโมเดลทั้งหมด
 models = {
     "KNN": KNeighborsClassifier(),
     "Decision Tree": DecisionTreeClassifier(random_state=42),
     "Regression (Logistic)": LogisticRegression(max_iter=500),
-    "SVM": SVC(kernel='linear'),
+    "SVM": SVC(kernel='linear', probability=True), # เปิด probability=True เพื่อให้คำนวณ % ความมั่นใจได้
     "Ensemble (Random Forest)": RandomForestClassifier(random_state=42)
 }
 
@@ -173,7 +172,6 @@ elif menu == "5. เว็บแอปใช้งาน":
     st.header("5. Streamlit Application (ระบบทำนายผลอัจฉริยะ)")
     st.write("เลือกโมเดลที่ต้องการใช้งาน (หรือเลือก **รันทุกโมเดลพร้อมกัน**) และกรอกข้อมูลสุขภาพด้านล่างนี้:")
     
-    # เพิ่มตัวเลือก "รันทุกโมเดลพร้อมกัน" เข้าไปในลิสต์
     model_options = ["KNN", "Decision Tree", "Regression (Logistic)", "SVM", "Ensemble (Random Forest)", "🚀 รันทุกโมเดลพร้อมกัน"]
     model_choice = st.radio("เลือกโหมดการทำนาย:", model_options, horizontal=True)
     
@@ -199,24 +197,33 @@ elif menu == "5. เว็บแอปใช้งาน":
         st.markdown("---")
         
         if model_choice == "🚀 รันทุกโมเดลพร้อมกัน":
-            st.subheader("📊 ผลการทำนายจากทุกโมเดลพร้อมกัน:")
+            st.subheader("📊 ผลการทำนายและระดับความมั่นใจจากทุกโมเดล:")
             compare_results = []
             for name, m in models.items():
                 m.fit(X_train_scaled, y_train)
                 pred = m.predict(scaled_input)[0]
-                status = "🚨 พบความเสี่ยงเป็นเบาหวาน" if pred == 1 else "✅ ไม่พบความเสี่ยง (ปกติ)"
-                compare_results.append({"Model": name, "Prediction": status})
+                prob = m.predict_proba(scaled_input)[0] # ดึงค่าความน่าจะเป็น
+                confidence = prob[pred] * 100 # คำนวณ % ความมั่นใจของผลลัพธ์นั้น
+                
+                status = "🚨 พบความเสี่ยง" if pred == 1 else "✅ ปกติ"
+                compare_results.append({
+                    "Model": name, 
+                    "Prediction": status, 
+                    "Confidence (%)": f"{confidence:.2f}%"
+                })
             
             res_table = pd.DataFrame(compare_results)
             st.table(res_table)
-            st.info("💡 สังเกตว่าบางเคสข้อมูล โมเดลที่ต่างกันอาจให้ผลลัพธ์การทำนายที่แตกต่างกันได้ตามตรรกะของอัลกอริทึมนั้นๆ ครับ")
+            st.info("💡 สังเกตว่าโมเดลแต่ละตัวจะมีเปอร์เซ็นต์ความมั่นใจ (Confidence Score) ต่างกันตามตรรกะการประมวลผลของอัลกอริทึมนั้นๆ")
         
         else:
             active_model = models[model_choice]
             active_model.fit(X_train_scaled, y_train)
-            prediction = active_model.predict(scaled_input)
+            prediction = active_model.predict(scaled_input)[0]
+            prob = active_model.predict_proba(scaled_input)[0]
+            confidence = prob[prediction] * 100
             
-            if prediction[0] == 1:
-                st.error(f"🚨 **ผลการทำนายด้วย {model_choice}:** พบความเสี่ยงเป็นโรคเบาหวาน (ควรพบแพทย์เพื่อตรวจวินิจฉัยเชิงลึก)")
+            if prediction == 1:
+                st.error(f"🚨 **ผลการทำนายด้วย {model_choice}:** พบความเสี่ยงเป็นโรคเบาหวาน (ระดับความมั่นใจ: **{confidence:.2f}%**)")
             else:
-                st.success(f"✅ **ผลการทำนายด้วย {model_choice}:** ไม่พบความเสี่ยง (สุขภาพปกติ)")
+                st.success(f"✅ **ผลการทำนายด้วย {model_choice}:** ไม่พบความเสี่ยง / สุขภาพปกติ (ระดับความมั่นใจ: **{confidence:.2f}%**)")
