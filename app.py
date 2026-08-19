@@ -8,86 +8,75 @@ from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# 1. ปรับแต่งหน้าเว็บให้ดูสะอาด (Modern Look)
-st.set_page_config(page_title="Diabetes AI Predictor", page_icon="🩺", layout="wide")
+st.set_page_config(page_title="Diabetes AI Project", layout="wide")
 
-# เพิ่ม CSS ให้ดูสวยขึ้นเล็กน้อย
-st.markdown("""
-    <style>
-    .main {background-color: #f5f7f9;}
-    .stButton>button {width: 100%; border-radius: 5px; height: 3em; background-color: #007BFF; color: white; font-weight: bold;}
-    </style>
-    """, unsafe_allow_html=True)
-
-# 2. ฟังก์ชันโหลดข้อมูล (Cache เพื่อความเร็ว)
+# โหลดข้อมูล
 @st.cache_data
 def load_data():
     names = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome']
     df = pd.read_csv('diabetes.csv', names=names)
-    cols_to_fix = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']
-    df[cols_to_fix] = df[cols_to_fix].replace(0, np.nan)
+    cols = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']
+    df[cols] = df[cols].replace(0, np.nan)
     df.fillna(df.mean(), inplace=True)
     return df
 
 df = load_data()
+X = df.drop('Outcome', axis=1)
+y = df['Outcome']
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+model = SVC(kernel='linear').fit(X_scaled, y)
 
-# 3. Sidebar (ข้อมูลผู้พัฒนา & ปรับตั้งค่า)
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/3774/3774299.png", width=100) # ไอคอนสุขภาพ
-    st.title("User Profile")
-    st.write("**รหัส:** [ุ664245019]")
-    st.write("**ชื่อ:** [นายคณิศร จันทรสูตร]")
-    st.write("**หมู่เรียน:** [664245019]")
-    st.markdown("---")
-    st.header("📋 ป้อนข้อมูลสุขภาพ")
-    # ปรับ Input ให้ใช้ง่ายขึ้น
-    p = st.slider('จำนวนครั้งที่ตั้งครรภ์', 0, 17, 1)
-    g = st.number_input('ระดับน้ำตาลในเลือด', 0, 200, 120)
-    bp = st.number_input('ความดันโลหิต', 0, 140, 70)
-    st_val = st.number_input('ความหนาผิวหนัง', 0, 100, 20)
-    ins = st.number_input('อินซูลิน', 0, 900, 79)
-    bmi = st.number_input('ดัชนีมวลกาย (BMI)', 0.0, 70.0, 25.0)
-    dpf = st.number_input('ประวัติครอบครัว (DPF)', 0.0, 2.5, 0.45)
-    age = st.slider('อายุ', 1, 100, 30)
+# --- Sidebar เมนู ---
+st.sidebar.title("📌 เมนูรายงานโปรเจ็ค")
+menu = st.sidebar.radio("เลือกหัวข้อนำเสนอ:", 
+    ["หน้าหลัก", "1. การกำหนดปัญหา", "2. Data Preprocessing", "3. สร้างโมเดล ML", "4. ประเมินโมเดล", "5. โปรแกรมใช้งาน"])
 
-# --- ส่วนเนื้อหาหลัก ---
-st.title("🩺 Diabetes AI Prediction")
-st.markdown("ใช้โมเดล **SVM (Support Vector Machine)** วิเคราะห์ความเสี่ยงโรคเบาหวานอย่างแม่นยำ")
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 👨‍💻 ข้อมูลผู้พัฒนา")
+st.sidebar.write("รหัส: [ใส่รหัส]")
+st.sidebar.write("ชื่อ: [ใส่ชื่อ]")
+st.sidebar.write("หมู่เรียน: [ใส่หมู่เรียน]")
 
-# แสดงผลแบบ Tab เพื่อความเป็นระเบียบ (เทรนด์เว็บสมัยใหม่)
-tab1, tab2, tab3 = st.tabs(["📊 Dataset & Preprocessing", "📈 Model Performance", "🚀 ทำนายความเสี่ยง"])
+# --- หน้า Content ตามเมนู ---
+if menu == "หน้าหลัก":
+    st.title("🩺 Diabetes Prediction Project")
+    st.write("ยินดีต้อนรับสู่รายงานสรุปผลโปรเจ็คทำนายโรคเบาหวานด้วย Machine Learning")
+    st.info("ใช้เมนูด้านซ้ายมือเพื่อเลือกดูเนื้อหาตามหัวข้อที่กำหนด 1-5")
 
-with tab1:
-    st.subheader("ข้อมูลสุขภาพและการเตรียมข้อมูล")
-    st.write("ชุดข้อมูลที่ผ่านการจัดการค่าศูนย์ (Missing Values) เรียบร้อยแล้ว")
-    st.dataframe(df.head(10), use_container_width=True)
+elif menu == "1. การกำหนดปัญหา":
+    st.subheader("1. การกำหนดปัญหาและ Dataset")
+    st.write("- **ปัญหา:** เบาหวานเป็นโรคที่ต้องคัดกรองเบื้องต้นเพื่อลดความเสี่ยง")
+    st.write("- **Dataset:** ใช้ Pima Indians Diabetes Database เนื่องจากมีความเป็นมาตรฐานและตัวแปรครอบคลุมสุขภาพ")
 
-with tab2:
-    st.subheader("ประสิทธิภาพของโมเดล (SVM)")
-    # Train Model แบบด่วน
-    X = df.drop('Outcome', axis=1)
-    y = df['Outcome']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    scaler = StandardScaler()
-    model = SVC(kernel='linear')
-    model.fit(scaler.fit_transform(X_train), y_train)
-    acc = accuracy_score(y_test, model.predict(scaler.transform(X_test)))
-    
-    col_a, col_b = st.columns(2)
-    col_a.metric("ความแม่นยำ (Accuracy)", f"{acc*100:.2f}%")
-    col_b.write("กราฟ Confusion Matrix แสดงการจำแนกประเภท:")
+elif menu == "2. Data Preprocessing":
+    st.subheader("2. Data Preprocessing")
+    st.write("มีการจัดการข้อมูลดังนี้:")
+    st.code("df[cols].replace(0, np.nan) # แก้ไขค่า 0 ที่เป็นข้อมูลผิดพลาด\ndf.fillna(df.mean()) # เติมค่าว่างด้วยค่าเฉลี่ย", language='python')
+    st.dataframe(df.head())
+
+elif menu == "3. สร้างโมเดล ML":
+    st.subheader("3. การสร้างโมเดล Machine Learning")
+    st.write("เลือกใช้ **Support Vector Machine (SVM)**")
+    st.latex(r'''หลักการ: หาเส้นแบ่ง (Hyperplane) ที่สร้างระยะห่าง (Margin) ระหว่างข้อมูลสองกลุ่มให้กว้างที่สุด''')
+
+elif menu == "4. ประเมินโมเดล":
+    st.subheader("4. การประเมินและเปรียบเทียบโมเดล")
+    st.metric("ความแม่นยำ (Accuracy)", f"{accuracy_score(y, model.predict(X_scaled))*100:.2f}%")
     fig, ax = plt.subplots()
-    sns.heatmap(pd.crosstab(y_test, model.predict(scaler.transform(X_test))), annot=True, fmt='d', cmap='Greens')
+    sns.heatmap(pd.crosstab(y, model.predict(X_scaled)), annot=True, fmt='d', cmap='Blues')
     st.pyplot(fig)
 
-with tab3:
-    st.subheader("ประเมินความเสี่ยงรายบุคคล")
-    if st.button("ประมวลผลความเสี่ยง"):
-        input_data = pd.DataFrame([[p, g, bp, st_val, ins, bmi, dpf, age]], 
-                                  columns=['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age'])
-        prediction = model.predict(scaler.transform(input_data))
-        
-        if prediction[0] == 1:
-            st.error("⚠️ พบความเสี่ยง: ผลการวิเคราะห์บ่งชี้ว่ามีความเสี่ยงเป็นเบาหวาน")
-        else:
-            st.success("✅ ปกติ: ผลการวิเคราะห์ไม่พบความเสี่ยงเบาหวาน")
+elif menu == "5. โปรแกรมใช้งาน":
+    st.subheader("5. Streamlit Application")
+    st.write("กรอกข้อมูลด้านล่างเพื่อทำนายผล")
+    col1, col2 = st.columns(2)
+    p = col1.number_input('ตั้งครรภ์', 0, 20, 1)
+    g = col1.number_input('ระดับน้ำตาล', 0, 200, 120)
+    bp = col2.number_input('ความดัน', 0, 140, 70)
+    bmi = col2.number_input('BMI', 0.0, 70.0, 25.0)
+    
+    if st.button("ทำนายผล"):
+        res = model.predict(scaler.transform([[p,g,bp,20,79,bmi,0.5,30]]))
+        if res[0] == 1: st.error("มีความเสี่ยง")
+        else: st.success("ปกติ")
