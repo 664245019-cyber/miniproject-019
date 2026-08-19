@@ -177,11 +177,12 @@ elif menu == "2. Data Preprocessing":
     st.dataframe(df.head(10), use_container_width=True)
 
 elif menu == "3. สร้างโมเดล ML":
+    # ใช้ HTML ล้วนๆ กำหนดสีตัวหนังสือให้เป็นสีขาวและสีเทาสว่างชัดเจน
     st.markdown("""
-        <div class="page-header">
+        <div style="margin-bottom: 25px;">
             <span class="badge">MACHINE LEARNING PROJECT</span>
-            <h1 style="margin-top: 5px;">🧠 3. ทฤษฎีและการสร้างโมเดล ML</h1>
-            <p style="color: #94a3b8 !important; font-size: 16px;">อธิบายหลักการของแต่ละอัลกอริทึม พร้อมข้อดีและข้อจำกัด</p>
+            <h1 style="color: #f8fafc !important; margin-top: 10px; font-size: 32px;">🧠 3. ทฤษฎีและการสร้างโมเดล ML</h1>
+            <p style="color: #cbd5e1 !important; font-size: 16px;">อธิบายหลักการของแต่ละอัลกอริทึม พร้อมข้อดีและข้อจำกัด</p>
         </div>
     """, unsafe_allow_html=True)
 
