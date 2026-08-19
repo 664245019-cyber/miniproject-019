@@ -97,14 +97,33 @@ elif menu == "4. ประเมินโมเดล":
     st.write("จากผลลัพธ์พบว่าโมเดลมีความแม่นยำสูง สามารถใช้เป็นเครื่องมือคัดกรองเบื้องต้นได้จริง")
 
 elif menu == "5. เว็บแอปใช้งาน":
-    st.header("5. Streamlit Application")
-    with st.form("input_form"):
+    st.header("5. Streamlit Application (ระบบทำนายผล)")
+    st.write("กรอกข้อมูลสุขภาพให้ครบถ้วนทั้ง 8 ปัจจัย แล้วกดปุ่มทำนายผลด้านล่างได้เลยครับ")
+    
+    with st.form("predict_form"):
         col1, col2 = st.columns(2)
-        p = col1.number_input('ตั้งครรภ์', 0, 20, 1)
-        g = col1.number_input('ระดับน้ำตาล', 0, 200, 120)
-        bp = col2.number_input('ความดัน', 0, 140, 70)
-        bmi = col2.number_input('BMI', 0.0, 70.0, 25.0)
-        if st.form_submit_button("ทำนายผล"):
-            res = model.predict(scaler.transform([[p,g,bp,20,79,bmi,0.5,30]]))
-            if res[0] == 1: st.error("เสี่ยงเบาหวาน")
-            else: st.success("ปกติ")
+        
+        with col1:
+            p = st.number_input('จำนวนครั้งที่ตั้งครรภ์ (Pregnancies)', 0, 20, 1)
+            g = st.number_input('ระดับน้ำตาลในเลือด (Glucose)', 0, 200, 110)
+            bp = st.number_input('ความดันโลหิต (BloodPressure)', 0, 140, 70)
+            skin = st.number_input('ความหนาผิวหนัง (SkinThickness)', 0, 100, 20)
+            
+        with col2:
+            ins = st.number_input('ระดับอินซูลิน (Insulin)', 0, 900, 79)
+            bmi = st.number_input('ดัชนีมวลกาย (BMI)', 0.0, 70.0, 25.0)
+            dpf = st.number_input('ประวัติครอบครัว (DiabetesPedigreeFunction)', 0.0, 2.5, 0.5)
+            age = st.number_input('อายุ (Age)', 1, 100, 30)
+            
+        submit = st.form_submit_button("🚀 คลิกเพื่อประเมินความเสี่ยงโรคเบาหวาน", use_container_width=True)
+        
+    if submit:
+        # ส่งข้อมูลครบทั้ง 8 ตัวแปรเข้าโมเดล
+        input_data = pd.DataFrame([[p, g, bp, skin, ins, bmi, dpf, age]], columns=X.columns)
+        prediction = model.predict(scaler.transform(input_data))
+        
+        st.markdown("---")
+        if prediction[0] == 1:
+            st.error("🚨 **ผลการทำนาย:** พบความเสี่ยงเป็นโรคเบาหวาน (ควรปรึกษาแพทย์เพื่อตรวจวินิจฉัยเชิงลึก)")
+        else:
+            st.success("✅ **ผลการทำนาย:** ไม่พบความเสี่ยง (สุขภาพปกติ)")
