@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -31,8 +34,15 @@ def load_data():
 df = load_data()
 X = df.drop('Outcome', axis=1)
 y = df['Outcome']
+
+# แบ่งชุดข้อมูลสำหรับเทรนและทดสอบโมเดล
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 scaler = StandardScaler()
-model = SVC(kernel='linear').fit(scaler.fit_transform(X), y)
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# เทรนโมเดลหลัก (SVM)
+model = SVC(kernel='linear').fit(X_train_scaled, y_train)
 
 # --- Sidebar (Bar Menu) ---
 with st.sidebar:
@@ -44,15 +54,15 @@ with st.sidebar:
     )
     st.markdown("---")
     st.subheader("👨‍💻 ข้อมูลผู้พัฒนา")
-    st.caption("รหัส: [664245019]")
-    st.caption("ชื่อ: [นายคณิศร จันทรสูตร]")
-    st.caption("หมู่เรียน: [66/43]")
+    st.caption("รหัส: 664245019")
+    st.caption("ชื่อ: นายคณิศร จันทรสูตร")
+    st.caption("หมู่เรียน: 66/43")
 
-# --- หน้า Content ที่เพิ่มเนื้อหาให้อัดแน่น ---
+# --- หน้า Content ---
 if menu == "หน้าหลัก":
     st.title("🩺 Diabetes Prediction Project")
     st.markdown("### รายงานสรุปผลโปรเจ็ค Machine Learning เพื่อการคัดกรองเบาหวาน")
-    st.write("โปรเจ็คนี้พัฒนาขึ้นเพื่อประยุกต์ใช้โมเดล SVM ในการทำนายความเสี่ยงโรคเบาหวานโดยใช้ข้อมูลสุขภาพที่เป็นมาตรฐานสากล")
+    st.write("โปรเจ็คนี้พัฒนาขึ้นเพื่อประยุกต์ใช้โมเดล Machine Learning ในการทำนายความเสี่ยงโรคเบาหวานโดยใช้ข้อมูลสุขภาพที่เป็นมาตรฐานสากล")
     st.image("https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80", use_container_width=True)
 
 elif menu == "1. ปัญหาและ Dataset":
@@ -80,25 +90,50 @@ elif menu == "2. Data Preprocessing":
 elif menu == "3. สร้างโมเดล ML":
     st.header("3. การสร้างโมเดล Machine Learning")
     st.markdown("""
-    **อัลกอริทึม:** Support Vector Machine (SVM)
-    * **ทำไมต้อง SVM:** เพราะมีประสิทธิภาพสูงในการแยกกลุ่มข้อมูล (Classification) ที่มีความซับซ้อนและข้อมูลไม่เป็นเส้นตรง
-    * **Linear Kernel:** เราเลือกใช้ Linear Kernel เนื่องจากความสัมพันธ์ของตัวแปรมีความเป็นเส้นตรงที่ค่อนข้างชัดเจน
+    **อัลกอริทึมหลัก:** Support Vector Machine (SVM)
+    * **ทำไมต้อง SVM:** เพราะมีประสิทธิภาพสูงในการแยกกลุ่มข้อมูล (Classification) ที่มีความซับซ้อน
+    * **Linear Kernel:** เราเลือกใช้ Linear Kernel เนื่องจากความสัมพันธ์ของตัวแปรมีความเป็นเส้นตรงค่อนข้างชัดเจน
     * **Hyperplane:** หลักการคือการหาเส้นแบ่งที่ดีที่สุดระหว่างกลุ่ม Positive และ Negative โดยการรักษาระยะห่าง (Margin) ให้มากที่สุด
     """)
 
 elif menu == "4. ประเมินโมเดล":
     st.header("4. การประเมินและเปรียบเทียบโมเดล")
-    acc = accuracy_score(y, model.predict(scaler.transform(X)))
-    st.metric("Accuracy ของโมเดล SVM", f"{acc*100:.2f}%")
-    st.write("Confusion Matrix เพื่อดูการทายถูก/ผิด:")
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(pd.crosstab(y, model.predict(scaler.transform(X))), annot=True, fmt='d', cmap='Blues', annot_kws={"size": 16})
+    st.write("เปรียบเทียบประสิทธิภาพระหว่างโมเดล Machine Learning หลายรูปแบบ:")
+    
+    # เทรนและวัดผลหลายโมเดลเพื่อให้ตรงโจทย์การเปรียบเทียบ
+    models = {
+        "SVM (Linear)": SVC(kernel='linear'),
+        "Random Forest": RandomForestClassifier(random_state=42),
+        "Logistic Regression": LogisticRegression(max_iter=500)
+    }
+    
+    results = []
+    for name, m in models.items():
+        m.fit(X_train_scaled, y_train)
+        score = accuracy_score(y_test, m.predict(X_test_scaled))
+        results.append({"Model": name, "Accuracy (%)": round(score * 100, 2)})
+    
+    res_df = pd.DataFrame(results)
+    st.table(res_df)
+    
+    st.write("Confusion Matrix ของโมเดลหลัก (SVM):")
+    acc = accuracy_score(y_test, model.predict(X_test_scaled))
+    fig, ax = plt.subplots(figsize=(5, 3))
+    sns.heatmap(pd.crosstab(y_test, model.predict(X_test_scaled)), annot=True, fmt='d', cmap='Blues', annot_kws={"size": 14})
     st.pyplot(fig)
-    st.write("จากผลลัพธ์พบว่าโมเดลมีความแม่นยำสูง สามารถใช้เป็นเครื่องมือคัดกรองเบื้องต้นได้จริง")
 
 elif menu == "5. เว็บแอปใช้งาน":
     st.header("5. Streamlit Application (ระบบทำนายผล)")
-    st.write("กรอกข้อมูลสุขภาพให้ครบถ้วนทั้ง 8 ปัจจัย แล้วกดปุ่มทำนายผลด้านล่างได้เลยครับ")
+    st.write("เลือกโมเดลและกรอกข้อมูลสุขภาพให้ครบถ้วนทั้ง 8 ปัจจัย เพื่อประเมินความเสี่ยง")
+    
+    # ให้ผู้ใช้เลือกโมเดลที่จะใช้ทำนายได้
+    model_choice = st.selectbox("เลือกโมเดล Machine Learning สำหรับทำนาย:", ["SVM (Linear)", "Random Forest", "Logistic Regression"])
+    
+    if model_choice == "SVM (Linear)": active_model = SVC(kernel='linear')
+    elif model_choice == "Random Forest": active_model = RandomForestClassifier(random_state=42)
+    else: active_model = LogisticRegression(max_iter=500)
+    
+    active_model.fit(X_train_scaled, y_train)
     
     with st.form("predict_form"):
         col1, col2 = st.columns(2)
@@ -115,15 +150,14 @@ elif menu == "5. เว็บแอปใช้งาน":
             dpf = st.number_input('ประวัติครอบครัว (DiabetesPedigreeFunction)', 0.0, 2.5, 0.5)
             age = st.number_input('อายุ (Age)', 1, 100, 30)
             
-        submit = st.form_submit_button("🚀 คลิกเพื่อประเมินความเสี่ยงโรคเบาหวาน", use_container_width=True)
+        submit = st.form_submit_button(f"🚀 ประเมินความเสี่ยงด้วย {model_choice}", use_container_width=True)
         
     if submit:
-        # ส่งข้อมูลครบทั้ง 8 ตัวแปรเข้าโมเดล
         input_data = pd.DataFrame([[p, g, bp, skin, ins, bmi, dpf, age]], columns=X.columns)
-        prediction = model.predict(scaler.transform(input_data))
+        prediction = active_model.predict(scaler.transform(input_data))
         
         st.markdown("---")
         if prediction[0] == 1:
-            st.error("🚨 **ผลการทำนาย:** พบความเสี่ยงเป็นโรคเบาหวาน (ควรปรึกษาแพทย์เพื่อตรวจวินิจฉัยเชิงลึก)")
+            st.error(f"🚨 **ผลการทำนายด้วย {model_choice}:** พบความเสี่ยงเป็นโรคเบาหวาน (ควรปรึกษาแพทย์เพื่อตรวจวินิจฉัยเชิงลึก)")
         else:
-            st.success("✅ **ผลการทำนาย:** ไม่พบความเสี่ยง (สุขภาพปกติ)")
+            st.success(f"✅ **ผลการทำนายด้วย {model_choice}:** ไม่พบความเสี่ยง (สุขภาพปกติ)")
