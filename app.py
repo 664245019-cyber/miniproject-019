@@ -6,20 +6,60 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
-from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-st.set_page_config(page_title="Diabetes AI Report", page_icon="🩺", layout="wide")
+# ตั้งค่าหน้าเว็บให้เป็นแบบ Wide
+st.set_page_config(page_title="Diabetes AI Modern Report", page_icon="🩺", layout="wide")
 
-# เพิ่มสีสันให้ Sidebar และเมนู
+# --- CUSTOM CSS สำหรับแต่งธีม Modern Dashboard ---
 st.markdown("""
     <style>
+    /* เปลี่ยนสีพื้นหลังหลักของแอป */
+    .main {
+        background-color: #0f172a;
+        color: #f8fafc;
+    }
+    /* ปรับแต่ง Sidebar ให้ดูโมเดล คลีนๆ มืดๆ สวยหรู */
     [data-testid="stSidebar"] {
-        background-color: #f0f2f6;
+        background-color: #1e293b;
+        color: #ffffff;
+    }
+    /* ปรับแต่งหัวข้อและตัวอักษรใน Sidebar ให้เด่นชัด */
+    [data-testid="stSidebar"] .css-17lntkn, [data-testid="stSidebar"] span {
+        color: #f1f5f9;
+    }
+    /* สร้างสไตล์ Card สำหรับครอบเนื้อหา */
+    .card {
+        background-color: #1e293b;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        margin-bottom: 20px;
+        border: 1px solid #334155;
+    }
+    /* ตกแต่งปุ่มกดให้มีความโค้งมนและสีสันทันสมัย */
+    .stButton>button {
+        width: 100%;
+        border-radius: 8px;
+        height: 3em;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        font-weight: bold;
+        border: none;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        box-shadow: 0 6px 15px rgba(59, 130, 246, 0.5);
+    }
+    /* ปรับแต่งตารางและ DataFrame ให้เข้ากับธีมมืด */
+    dataframe {
+        border-radius: 8px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -43,63 +83,73 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# โมเดลหลักค่าเริ่มต้น (SVM)
 model = SVC(kernel='linear').fit(X_train_scaled, y_train)
 
-# --- Sidebar (Bar Menu) ---
+# --- Sidebar (Modern Menu Bar) ---
 with st.sidebar:
-    st.title("🩺 Project Menu")
+    st.markdown("<h2 style='text-align: center; color: #38bdf8;'>🩺 AI Dashboard</h2>", unsafe_allow_html=True)
+    st.markdown("---")
     menu = st.radio(
-        "เลือกหัวข้อนำเสนอ:",
+        "📂 เลือกหัวข้อรายงาน:",
         ["หน้าหลัก", "1. ปัญหาและ Dataset", "2. Data Preprocessing", "3. สร้างโมเดล ML", "4. ประเมินโมเดล", "5. เว็บแอปใช้งาน"],
         index=0
     )
     st.markdown("---")
-    st.subheader("👨‍💻 ข้อมูลผู้พัฒนา")
-    st.caption("รหัส: 664245019")
-    st.caption("ชื่อ: นายคณิศร จันทรสูตร")
-    st.caption("หมู่เรียน: 66/43")
+    st.markdown("### 👨‍💻 ผู้พัฒนาโปรเจ็ค")
+    st.caption("🆔 รหัส: 664245019")
+    st.caption("👤 ชื่อ: นายคณิศร จันทรสูตร")
+    st.caption("🏫 หมู่เรียน: 66/43")
 
-# --- หน้า Content ---
+# --- หน้า Content แบบ Modern ---
 if menu == "หน้าหลัก":
-    st.title("🩺 Diabetes Prediction Project")
-    st.markdown("### รายงานสรุปผลโปรเจ็ค Machine Learning ตามหัวข้อที่เรียน")
-    st.write("รวบรวมอัลกอริทึมการเรียนรู้ของเครื่อง (Machine Learning) ที่ได้ศึกษามาเพื่อใช้ในการวิเคราะห์และทำนายผล")
+    st.title("🩺 Diabetes Prediction & AI Analytics")
+    st.markdown("#### ระบบวิเคราะห์และทำนายโรคเบาหวานด้วย Machine Learning สมัยใหม่")
+    st.write("ยินดีต้อนรับสู่รายงานสรุปโปรเจ็คเชิงวิเคราะห์ ออกแบบด้วยธีม Modern Dashboard ทันสมัยและใช้งานง่าย")
     st.image("https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80", use_container_width=True)
 
 elif menu == "1. ปัญหาและ Dataset":
     st.header("1. การกำหนดปัญหาและ Dataset")
     st.markdown("""
-    **ปัญหาที่พบ:** โรคเบาหวานเป็นภัยเงียบ การตรวจพบเร็วช่วยลดความเสี่ยงและภาวะแทรกซ้อน
-    **Dataset ที่เลือกใช้:** Pima Indians Diabetes Database
-    * **จำนวนตัวอย่าง:** 768 รายการ
-    * **ตัวแปรต้น (Features):** 8 ตัวแปรสุขภาพ (Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DPF, Age)
-    * **ตัวแปรตาม (Target):** Outcome (0 = ปกติ, 1 = เป็นเบาหวาน)
-    """)
+    <div class='card'>
+    <b>📌 ปัญหาที่พบ:</b> โรคเบาหวานเป็นภัยเงียบระดับโลก การตรวจคัดกรองเบื้องต้นด้วยระบบอัจฉริยะช่วยให้ผู้ป่วยเข้ารับการรักษาได้ทันท่วงที<br><br>
+    <b>📊 ข้อมูลที่ใช้ (Dataset):</b> Pima Indians Diabetes Database
+    <ul>
+        <li><b>จำนวนตัวอย่างทั้งหมด:</b> 768 รายการ</li>
+        <li><b>ตัวแปรต้น (Features):</b> 8 ปัจจัยด้านสุขภาพ (เช่น ระดับน้ำตาล, BMI, ความดันโลหิต)</li>
+        <li><b>ตัวแปรเป้าหมาย (Target):</b> Outcome (0 = ปกติ, 1 = เสี่ยงเป็นเบาหวาน)</li>
+    </ul>
+    </div>
+    """, unsafe_allow_html=True)
 
 elif menu == "2. Data Preprocessing":
     st.header("2. Data Preprocessing")
+    st.write("ขั้นตอนการเตรียมและทำความสะอาดข้อมูลดิบก่อนนำไปฝึกสอนโมเดล:")
     st.table(pd.DataFrame({
-        "ขั้นตอน": ["จัดการ Missing Values", "จัดการค่า 0 ผิดปกติ", "Feature Scaling"],
-        "วิธีการ": ["เติมค่าเฉลี่ย (Mean)", "เปลี่ยนค่า 0 เป็น NaN", "ใช้ StandardScaler"],
-        "ผลลัพธ์": ["ข้อมูลไม่สูญหาย", "ข้อมูลสะอาดขึ้น", "ปรับสเกลมาตรฐาน"]
+        "ขั้นตอนสำคัญ": ["จัดการ Missing Values", "จัดการค่า 0 ที่ผิดปกติ", "Feature Scaling"],
+        "วิธีการทางสถิติ": ["ใช้การเติมค่าเฉลี่ย (Mean Imputation)", "แปลงค่า 0 ในคอลัมน์สุขภาพเป็น NaN", "ปรับสเกลมาตรฐานด้วย StandardScaler"],
+        "ประโยชน์": ["ป้องกันข้อมูลสูญหาย", "ขจัดข้อมูลขยะทางการแพทย์", "ลดความเหลื่อมล้ำของช่วงตัวเลข"]
     }))
+    st.markdown("#### 🔍 ตัวอย่างข้อมูลหลังผ่านกระบวนการ Preprocessing:")
     st.dataframe(df.head(10), use_container_width=True)
 
 elif menu == "3. สร้างโมเดล ML":
-    st.header("3. อัลกอริทึมที่ได้เรียนรู้และนำมาใช้")
+    st.header("3. อัลกอริทึม Machine Learning ที่ศึกษา")
     st.markdown("""
-    ตามหัวข้อบทเรียนประกอบด้วย:
-    1. **KNN (K-Nearest Neighbors):** จำแนกกลุ่มตามเพื่อนบ้านใกล้เคียง
-    2. **Decision Tree:** สร้างแผนผังการตัดสินใจจากเงื่อนไขข้อมูล
-    3. **Regression (Logistic Regression):** ทำนายผลลัพธ์แบบแบ่งกลุ่ม (Binary Classification)
-    4. **SVM (Support Vector Machine):** หาเส้นแบ่ง Hyperplane ที่ดีที่สุด
-    5. **K-Means:** การจัดกลุ่มข้อมูลแบบ Unsupervised Learning
-    6. **Ensemble (Random Forest):** การรวมพลังหลายต้นไม้เพื่อความแม่นยำสูง
-    """)
+    <div class='card'>
+    โปรเจ็คนี้ได้รวบรวมอัลกอริทึมตามบทเรียนทั้งหมด 5 โมเดลหลัก:
+    <ol>
+        <li><b>KNN (K-Nearest Neighbors):</b> จำแนกกลุ่มตามความใกล้เคียงของข้อมูลรอบข้าง</li>
+        <li><b>Decision Tree:</b> วิเคราะห์เงื่อนไขแยกกลุ่มข้อมูลในรูปแบบโครงสร้างต้นไม้</li>
+        <li><b>Regression (Logistic Regression):</b> โมเดลรีเกรสชันสำหรับงานจำแนกประเภท (Binary Classification)</li>
+        <li><b>SVM (Support Vector Machine):</b> ค้นหาเส้นแบ่ง Hyperplane ที่สร้างระยะ Margin กว้างที่สุด</li>
+        <li><b>Ensemble (Random Forest):</b> ผสานพลังต้นไม้หลายต้นเพื่อเพิ่มความแม่นยำสูงสุด</li>
+    </ol>
+    </div>
+    """, unsafe_allow_html=True)
 
 elif menu == "4. ประเมินโมเดล":
     st.header("4. การประเมินและเปรียบเทียบโมเดล")
+    st.write("ตารางเปรียบเทียบค่าความแม่นยำ (Accuracy) ของแต่ละอัลกอริทึม:")
     
     models = {
         "KNN": KNeighborsClassifier(),
@@ -118,18 +168,17 @@ elif menu == "4. ประเมินโมเดล":
     res_df = pd.DataFrame(results)
     st.table(res_df)
     
-    st.write("Confusion Matrix ของโมเดลหลัก (SVM):")
+    st.write("📈 **Confusion Matrix ของโมเดลหลัก (SVM):**")
     fig, ax = plt.subplots(figsize=(5, 3))
     sns.heatmap(pd.crosstab(y_test, model.predict(X_test_scaled)), annot=True, fmt='d', cmap='Blues')
     st.pyplot(fig)
 
 elif menu == "5. เว็บแอปใช้งาน":
-    st.header("5. Streamlit Application (ระบบทำนายผล)")
-    st.write("เลือกโมเดลตามหัวข้อที่เรียนเพื่อทดสอบทำนายผล:")
+    st.header("5. Streamlit Application (ระบบทำนายผลอัจฉริยะ)")
+    st.write("เลือกโมเดลที่ต้องการใช้งานและกรอกข้อมูลสุขภาพด้านล่างนี้:")
     
-    # ดึงโมเดลตามเนื้อหาที่เรียนในรูป
     model_choice = st.radio(
-        "เลือกโมเดล:",
+        "เลือกโมเดล Machine Learning:",
         ["KNN", "Decision Tree", "Regression (Logistic)", "SVM", "Ensemble (Random Forest)"],
         horizontal=True
     )
@@ -163,6 +212,6 @@ elif menu == "5. เว็บแอปใช้งาน":
         
         st.markdown("---")
         if prediction[0] == 1:
-            st.error(f"🚨 **ผลการทำนายด้วย {model_choice}:** พบความเสี่ยงเป็นโรคเบาหวาน")
+            st.error(f"🚨 **ผลการทำนายด้วย {model_choice}:** พบความเสี่ยงเป็นโรคเบาหวาน (ควรพบแพทย์เพื่อตรวจวินิจฉัยเชิงลึก)")
         else:
-            st.success(f"✅ **ผลการทำนายด้วย {model_choice}:** ไม่พบความเสี่ยง (ปกติ)")
+            st.success(f"✅ **ผลการทำนายด้วย {model_choice}:** ไม่พบความเสี่ยง (สุขภาพปกติ)")
