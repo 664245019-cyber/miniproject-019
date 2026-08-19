@@ -14,7 +14,7 @@ import seaborn as sns
 
 st.set_page_config(page_title="Diabetes AI Report", page_icon="🩺", layout="wide")
 
-# --- ปรับ CSS ให้ปุ่มใน Sidebar เป็นการ์ดมนๆ สวยๆ แบบในรูปเพื่อน ---
+# --- ปรับ CSS ให้การ์ดเนื้อหาขาวสะอาด โค้งมนสวยงาม ---
 st.markdown("""
     <style>
     .main {
@@ -22,7 +22,7 @@ st.markdown("""
         color: #f8fafc;
     }
     [data-testid="stSidebar"] {
-        background-color: #1e1b4b; /* โทนสีม่วงเข้มหรูหราแบบในภาพ */
+        background-color: #1e1b4b;
     }
     [data-testid="stSidebar"] span, 
     [data-testid="stSidebar"] label, 
@@ -32,7 +32,7 @@ st.markdown("""
     [data-testid="stSidebar"] h2 {
         color: #f8fafc !important;
     }
-    /* ปรับแต่งปุ่มใน Sidebar ให้เป็นทรงโค้งมนเหมือนการ์ด */
+    /* ปรับแต่งปุ่มใน Sidebar ให้เป็นทรงโค้งมน */
     [data-testid="stSidebar"] .stButton>button {
         width: 100%;
         border-radius: 12px;
@@ -50,17 +50,31 @@ st.markdown("""
         background-color: #e2e8f0;
         color: #0f172a !important;
     }
-    .card {
-        background-color: #1e293b;
+    /* สไตล์การ์ดเนื้อหาหลักสีขาว ตัวหนังสือเข้มแบบในรูปเพื่อน */
+    .content-card {
+        background-color: #ffffff;
         padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
-        border: 1px solid #334155;
-        color: #f8fafc !important;
+        color: #1e293b !important;
     }
-    .card p, .card li, .card b {
-        color: #f8fafc !important;
+    .content-card h3 {
+        color: #1e1b4b !important;
+        margin-top: 0;
+    }
+    .content-card p, .content-card li, .content-card b {
+        color: #334155 !important;
+    }
+    .badge {
+        background-color: #f3e8ff;
+        color: #6b21a8;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 10px;
     }
     .stButton>button {
         border-radius: 8px;
@@ -100,13 +114,12 @@ models = {
     "Ensemble (Random Forest)": RandomForestClassifier(random_state=42)
 }
 
-# --- จัดการสถานะหน้า (Session State) สำหรับปุ่มเมนู ---
+# --- Session State สำหรับเมนู ---
 if 'menu' not in st.session_state:
     st.session_state.menu = "หน้าหลัก"
 
-# --- Sidebar แบบปุ่มกดการ์ด ---
+# --- Sidebar ---
 with st.sidebar:
-    # รูปโปรไฟล์ (ใช้อิโมจิหรือลิงก์รูปก็ได้ครับ ตรงนี้ผมทำวงกลมจำลองสไตล์เพื่อนให้)
     st.markdown("""
         <div style="text-align: center; padding-bottom: 10px;">
             <div style="width: 100px; height: 100px; border-radius: 50%; background-color: #38bdf8; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
@@ -120,19 +133,12 @@ with st.sidebar:
         <h4 style="color: #38bdf8; font-size: 16px; margin-bottom: 10px;">📌 เมนูโครงงาน</h4>
     """, unsafe_allow_html=True)
     
-    # สร้างปุ่มเมนูเรียงลงมาแทน Radio
-    if st.button("🏠 ภาพรวมโครงงาน", use_container_width=True):
-        st.session_state.menu = "หน้าหลัก"
-    if st.button("📊 ปัญหาและ Dataset", use_container_width=True):
-        st.session_state.menu = "1. ปัญหาและ Dataset"
-    if st.button("🧹 Data Preprocessing", use_container_width=True):
-        st.session_state.menu = "2. Data Preprocessing"
-    if st.button("🧠 ทฤษฎีของโมเดล", use_container_width=True):
-        st.session_state.menu = "3. สร้างโมเดล ML"
-    if st.button("📈 ประเมินและเปรียบเทียบ", use_container_width=True):
-        st.session_state.menu = "4. ประเมินโมเดล"
-    if st.button("🔮 ทดลองทำนาย", use_container_width=True):
-        st.session_state.menu = "5. เว็บแอปใช้งาน"
+    if st.button("🏠 ภาพรวมโครงงาน", use_container_width=True): st.session_state.menu = "หน้าหลัก"
+    if st.button("📊 ปัญหาและ Dataset", use_container_width=True): st.session_state.menu = "1. ปัญหาและ Dataset"
+    if st.button("🧹 Data Preprocessing", use_container_width=True): st.session_state.menu = "2. Data Preprocessing"
+    if st.button("🧠 ทฤษฎีของโมเดล", use_container_width=True): st.session_state.menu = "3. สร้างโมเดล ML"
+    if st.button("📈 ประเมินและเปรียบเทียบ", use_container_width=True): st.session_state.menu = "4. ประเมินโมเดล"
+    if st.button("🔮 ทดลองทำนาย", use_container_width=True): st.session_state.menu = "5. เว็บแอปใช้งาน"
 
 menu = st.session_state.menu
 
@@ -146,7 +152,7 @@ if menu == "หน้าหลัก":
 elif menu == "1. ปัญหาและ Dataset":
     st.header("1. การกำหนดปัญหาและ Dataset")
     st.markdown("""
-    <div class='card'>
+    <div class='content-card'>
     <b>📌 ปัญหาที่พบ:</b> โรคเบาหวานเป็นภัยเงียบระดับโลก การตรวจคัดกรองเบื้องต้นด้วยระบบอัจฉริยะช่วยให้ผู้ป่วยเข้ารับการรักษาได้ทันท่วงที<br><br>
     <b>📊 ข้อมูลที่ใช้ (Dataset):</b> Pima Indians Diabetes Database
     <ul>
@@ -169,18 +175,63 @@ elif menu == "2. Data Preprocessing":
     st.dataframe(df.head(10), use_container_width=True)
 
 elif menu == "3. สร้างโมเดล ML":
-    st.header("3. อัลกอริทึม Machine Learning ที่ศึกษา")
+    # --- หน้าออกแบบตามสไตล์ในรูปเพื่อน ---
     st.markdown("""
-    <div class='card'>
-    โปรเจ็คนี้ได้รวบรวมอัลกอริทึมตามบทเรียนทั้งหมด 5 โมเดลหลัก:
-    <ol>
-        <li><b>KNN (K-Nearest Neighbors):</b> จำแนกกลุ่มตามความใกล้เคียงของข้อมูลรอบข้าง</li>
-        <li><b>Decision Tree:</b> วิเคราะห์เงื่อนไขแยกกลุ่มข้อมูลในรูปแบบโครงสร้างต้นไม้</li>
-        <li><b>Regression (Logistic Regression):</b> โมเดลรีเกรสชันสำหรับงานจำแนกประเภท (Binary Classification)</li>
-        <li><b>SVM (Support Vector Machine):</b> ค้นหาเส้นแบ่ง Hyperplane ที่สร้างระยะ Margin กว้างที่สุด</li>
-        <li><b>Ensemble (Random Forest):</b> ผสานพลังต้นไม้หลายต้นเพื่อเพิ่มความแม่นยำสูงสุด</li>
-    </ol>
-    </div>
+        <div>
+            <span class="badge">MACHINE LEARNING PROJECT</span>
+            <h1 style="color: #ffffff; margin-top: 5px;">🧠 3. ทฤษฎีและการสร้างโมเดล ML</h1>
+            <p style="color: #94a3b8; font-size: 16px;">อธิบายหลักการของแต่ละอัลกอริทึม พร้อมข้อดีและข้อจำกัด</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # การ์ด Logistic Regression
+    st.markdown("""
+        <div class="content-card">
+            <h3>Logistic Regression (Regression)</h3>
+            <p>ใช้สมการ Logistic/Sigmoid แปลงค่าคะแนนเป็นความน่าจะเป็นของแต่ละคลาส เหมาะกับ Binary Classification และเป็นโมเดลพื้นฐานสำหรับใช้เปรียบเทียบ</p>
+            <hr style="border-color: #e2e8f0; margin: 12px 0;">
+            <p style="margin: 0; font-size: 14px;"><b>ข้อดี:</b> เข้าใจง่ายและเร็ว | <b>ข้อจำกัด:</b> ความสัมพันธ์ที่ซับซ้อนอาจอธิบายได้ไม่ดี</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # การ์ด KNN
+    st.markdown("""
+        <div class="content-card">
+            <h3>KNN (K-Nearest Neighbors)</h3>
+            <p>จัดประเภทข้อมูลใหม่โดยดูเพื่อนบ้านที่ใกล้ที่สุดจำนวน k ตัว แล้วให้คลาสที่พบมากที่สุดเป็นคำตอบ จึงเป็น Instance-based Learning</p>
+            <hr style="border-color: #e2e8f0; margin: 12px 0;">
+            <p style="margin: 0; font-size: 14px;"><b>ข้อดี:</b> แนวคิดง่าย ไม่ซับซ้อน | <b>ข้อจำกัด:</b> ต้องปรับสเกลและอาจช้าหากข้อมูลจำนวนมาก</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # การ์ด Decision Tree
+    st.markdown("""
+        <div class="content-card">
+            <h3>Decision Tree</h3>
+            <p>แบ่งข้อมูลด้วยเงื่อนไขเป็นลำดับชั้นคล้ายต้นไม้ โดยเลือก feature/threshold ที่ช่วยแยกคลาสได้ดี</p>
+            <hr style="border-color: #e2e8f0; margin: 12px 0;">
+            <p style="margin: 0; font-size: 14px;"><b>ข้อดี:</b> อธิบายง่าย ไม่จำเป็นต้อง scale | <b>ข้อจำกัด:</b> ถ้าต้นไม้ลึกเกินไปอาจเกิด Overfitting</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # การ์ด SVM
+    st.markdown("""
+        <div class="content-card">
+            <h3>SVM (Support Vector Machine)</h3>
+            <p>ค้นหาเส้นแบ่ง (Hyperplane) ที่สร้างระยะห่าง (Margin) ระหว่างกลุ่มข้อมูลให้กว้างที่สุดเพื่อให้การทำนายมีความแม่นยำสูง</p>
+            <hr style="border-color: #e2e8f0; margin: 12px 0;">
+            <p style="margin: 0; font-size: 14px;"><b>ข้อดี:</b> มีประสิทธิภาพสูงในพื้นที่หลายมิติ | <b>ข้อจำกัด:</b> ใช้เวลาเทรนค่อนข้างนานกับข้อมูลขนาดใหญ่</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # การ์ด Ensemble (Random Forest)
+    st.markdown("""
+        <div class="content-card">
+            <h3>Ensemble (Random Forest)</h3>
+            <p>รวมพลังต้นไม้ตัดสินใจหลายๆ ต้นมาร่วมกันโหวตผลลัพธ์ (Bagging) เพื่อลดความผิดพลาดและเพิ่มความแม่นยำ</p>
+            <hr style="border-color: #e2e8f0; margin: 12px 0;">
+            <p style="margin: 0; font-size: 14px;"><b>ข้อดี:</b> แม่นยำสูงและเสถียรมาก | <b>ข้อจำกัด:</b> เป็น Black box ตีความโมเดลยาก</p>
+        </div>
     """, unsafe_allow_html=True)
 
 elif menu == "4. ประเมินโมเดล":
