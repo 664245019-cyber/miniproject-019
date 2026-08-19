@@ -223,7 +223,8 @@ elif menu == "2. Data Preprocessing":
             </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("<h3 style='color: #f8fafc; margin-top: 25px;'>ข้อมูลหลังเตรียมเบื้องต้น</h3>", unsafe_allow_html=True)
+    # แก้ไขตรงหัวข้อนี้ให้ใช้ HTML บังคับสีขาว
+    st.markdown("<h3 style='color: #f8fafc !important; margin-top: 25px;'>ข้อมูลหลังเตรียมเบื้องต้น</h3>", unsafe_allow_html=True)
     st.dataframe(df.head(10), use_container_width=True)
 
 elif menu == "3. สร้างโมเดล ML":
