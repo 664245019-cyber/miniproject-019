@@ -32,7 +32,6 @@ st.markdown("""
     [data-testid="stSidebar"] h2 {
         color: #f8fafc !important;
     }
-    /* ปรับแต่งปุ่มใน Sidebar ให้เป็นทรงโค้งมน */
     [data-testid="stSidebar"] .stButton>button {
         width: 100%;
         border-radius: 12px;
@@ -50,7 +49,10 @@ st.markdown("""
         background-color: #e2e8f0;
         color: #0f172a !important;
     }
-    /* สไตล์การ์ดเนื้อหาหลักสีขาว ตัวหนังสือเข้มแบบในรูปเพื่อน */
+    /* แก้ไขสีหัวข้อในหน้าเนื้อหาให้สว่างชัดเจน ไม่กลืนกับพื้นหลัง */
+    .page-header h1, .page-header p {
+        color: #f8fafc !important;
+    }
     .content-card {
         background-color: #ffffff;
         padding: 25px;
@@ -175,12 +177,11 @@ elif menu == "2. Data Preprocessing":
     st.dataframe(df.head(10), use_container_width=True)
 
 elif menu == "3. สร้างโมเดล ML":
-    # --- หน้าออกแบบตามสไตล์ในรูปเพื่อน ---
     st.markdown("""
-        <div>
+        <div class="page-header">
             <span class="badge">MACHINE LEARNING PROJECT</span>
-            <h1 style="color: #ffffff; margin-top: 5px;">🧠 3. ทฤษฎีและการสร้างโมเดล ML</h1>
-            <p style="color: #94a3b8; font-size: 16px;">อธิบายหลักการของแต่ละอัลกอริทึม พร้อมข้อดีและข้อจำกัด</p>
+            <h1 style="margin-top: 5px;">🧠 3. ทฤษฎีและการสร้างโมเดล ML</h1>
+            <p style="color: #94a3b8 !important; font-size: 16px;">อธิบายหลักการของแต่ละอัลกอริทึม พร้อมข้อดีและข้อจำกัด</p>
         </div>
     """, unsafe_allow_html=True)
 
