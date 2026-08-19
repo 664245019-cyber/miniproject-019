@@ -124,14 +124,22 @@ elif menu == "4. ประเมินโมเดล":
 
 elif menu == "5. เว็บแอปใช้งาน":
     st.header("5. Streamlit Application (ระบบทำนายผล)")
-    st.write("เลือกโมเดลและกรอกข้อมูลสุขภาพให้ครบถ้วนทั้ง 8 ปัจจัย เพื่อประเมินความเสี่ยง")
+    st.write("เลือกโมเดล Machine Learning ที่ต้องการใช้ และกรอกข้อมูลสุขภาพให้ครบถ้วนทั้ง 8 ปัจจัย")
     
-    # ให้ผู้ใช้เลือกโมเดลที่จะใช้ทำนายได้
-    model_choice = st.selectbox("เลือกโมเดล Machine Learning สำหรับทำนาย:", ["SVM (Linear)", "Random Forest", "Logistic Regression"])
+    # ทำเป็นปุ่มเลือกเรียงกัน 3 อัน (Horizontal Radio)
+    model_choice = st.radio(
+        "เลือกโมเดลสำหรับทำนายผล:",
+        ["SVM (Linear)", "Random Forest", "Logistic Regression"],
+        horizontal=True
+    )
     
-    if model_choice == "SVM (Linear)": active_model = SVC(kernel='linear')
-    elif model_choice == "Random Forest": active_model = RandomForestClassifier(random_state=42)
-    else: active_model = LogisticRegression(max_iter=500)
+    # กำหนดโมเดลตามปุ่มที่เลือก
+    if model_choice == "SVM (Linear)": 
+        active_model = SVC(kernel='linear')
+    elif model_choice == "Random Forest": 
+        active_model = RandomForestClassifier(random_state=42)
+    else: 
+        active_model = LogisticRegression(max_iter=500)
     
     active_model.fit(X_train_scaled, y_train)
     
