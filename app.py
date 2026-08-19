@@ -14,7 +14,7 @@ import seaborn as sns
 
 st.set_page_config(page_title="Diabetes AI Report", page_icon="🩺", layout="wide")
 
-# --- ปรับ CSS ให้การ์ดเนื้อหาขาวสะอาด โค้งมนสวยงาม ---
+# --- ปรับ CSS ---
 st.markdown("""
     <style>
     .main {
@@ -49,24 +49,22 @@ st.markdown("""
         background-color: #e2e8f0;
         color: #0f172a !important;
     }
-    /* แก้ไขสีหัวข้อในหน้าเนื้อหาให้สว่างชัดเจน ไม่กลืนกับพื้นหลัง */
-    .page-header h1, .page-header p {
-        color: #f8fafc !important;
-    }
     .content-card {
         background-color: #ffffff;
-        padding: 25px;
+        padding: 22px;
         border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         color: #1e293b !important;
     }
     .content-card h3 {
         color: #1e1b4b !important;
         margin-top: 0;
+        font-size: 18px;
     }
     .content-card p, .content-card li, .content-card b {
         color: #334155 !important;
+        font-size: 15px;
     }
     .badge {
         background-color: #f3e8ff;
@@ -116,7 +114,6 @@ models = {
     "Ensemble (Random Forest)": RandomForestClassifier(random_state=42)
 }
 
-# --- Session State สำหรับเมนู ---
 if 'menu' not in st.session_state:
     st.session_state.menu = "หน้าหลัก"
 
@@ -166,18 +163,70 @@ elif menu == "1. ปัญหาและ Dataset":
     """, unsafe_allow_html=True)
 
 elif menu == "2. Data Preprocessing":
-    st.header("2. Data Preprocessing")
-    st.write("ขั้นตอนการเตรียมและทำความสะอาดข้อมูลดิบก่อนนำไปฝึกสอนโมเดล:")
-    st.table(pd.DataFrame({
-        "ขั้นตอนสำคัญ": ["จัดการ Missing Values", "จัดการค่า 0 ที่ผิดปกติ", "Feature Scaling"],
-        "วิธีการทางสถิติ": ["ใช้การเติมค่าเฉลี่ย (Mean Imputation)", "แปลงค่า 0 ในคอลัมน์สุขภาพเป็น NaN", "ปรับสเกลมาตรฐานด้วย StandardScaler"],
-        "ประโยชน์": ["ป้องกันข้อมูลสูญหาย", "ขจัดข้อมูลขยะทางการแพทย์", "ลดความเหลื่อมล้ำของช่วงตัวเลข"]
-    }))
-    st.markdown("#### 🔍 ตัวอย่างข้อมูลหลังผ่านกระบวนการ Preprocessing:")
+    st.markdown("""
+        <div style="margin-bottom: 25px;">
+            <span class="badge">MACHINE LEARNING PROJECT</span>
+            <h1 style="color: #f8fafc !important; margin-top: 10px; font-size: 32px;">🧹 2. Data Preprocessing</h1>
+            <p style="color: #cbd5e1 !important; font-size: 16px;">ขั้นตอนการเตรียมและทำความสะอาดข้อมูลก่อนนำไปสร้างโมเดล</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # การ์ดขั้นตอนแบบของเพื่อน
+    st.markdown("""
+        <div class="content-card">
+            <h3>1. ตรวจสอบข้อมูล</h3>
+            <p>ตรวจสอบชนิดข้อมูล จำนวนแถว/คอลัมน์ และเช็ค Missing Values เบื้องต้น</p>
+        </div>
+        <div class="content-card">
+            <h3>2. จัดการค่า 0 ที่ผิดปกติ</h3>
+            <p>แปลงค่า 0 ในคอลัมน์สุขภาพ (เช่น Glucose, BMI) เป็น NaN เนื่องจากในทางการแพทย์ค่าเหล่านี้เป็น 0 ไม่ได้</p>
+        </div>
+        <div class="content-card">
+            <h3>3. แยก X และ y</h3>
+            <p><b>X:</b> 8 Features ปัจจัยสุขภาพ | <b>y:</b> Outcome (ตัวแปรเป้าหมาย)</p>
+        </div>
+        <div class="content-card">
+            <h3>4. Train/Test Split</h3>
+            <p>แบ่งข้อมูลสำหรับฝึกสอน 80% และทดสอบ 20% เพื่อวัดประสิทธิภาพโมเดลอย่างยุติธรรม</p>
+        </div>
+        <div class="content-card">
+            <h3>5. Missing Value Imputation</h3>
+            <p>เติมเต็มค่าที่หายไป (NaN) ด้วยค่าเฉลี่ย (Mean Imputation) เพื่อไม่ให้ข้อมูลสูญหาย</p>
+        </div>
+        <div class="content-card">
+            <h3>6. Standardization (Feature Scaling)</h3>
+            <p>ปรับสเกลข้อมูลด้วย StandardScaler ให้เหมาะสมกับ KNN, SVM และ Logistic Regression</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # กล่องสถิติด้านล่างแบบในรูปเพื่อน
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("""
+            <div class="content-card" style="text-align: center;">
+                <p style="margin:0; font-size: 13px; color: #64748b;">Missing values ในไฟล์ (หลังจัดการ)</p>
+                <h2 style="color: #1e1b4b; margin: 5px 0;">0</h2>
+            </div>
+        """, unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+            <div class="content-card" style="text-align: center;">
+                <p style="margin:0; font-size: 13px; color: #64748b;">Duplicate rows</p>
+                <h2 style="color: #1e1b4b; margin: 5px 0;">0</h2>
+            </div>
+        """, unsafe_allow_html=True)
+    with col3:
+        st.markdown("""
+            <div class="content-card" style="text-align: center;">
+                <p style="margin:0; font-size: 13px; color: #64748b;">Split Ratio</p>
+                <h2 style="color: #1e1b4b; margin: 5px 0;">80% / 20%</h2>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<h3 style='color: #f8fafc; margin-top: 25px;'>ข้อมูลหลังเตรียมเบื้องต้น</h3>", unsafe_allow_html=True)
     st.dataframe(df.head(10), use_container_width=True)
 
 elif menu == "3. สร้างโมเดล ML":
-    # ใช้ HTML ล้วนๆ กำหนดสีตัวหนังสือให้เป็นสีขาวและสีเทาสว่างชัดเจน
     st.markdown("""
         <div style="margin-bottom: 25px;">
             <span class="badge">MACHINE LEARNING PROJECT</span>
@@ -186,7 +235,6 @@ elif menu == "3. สร้างโมเดล ML":
         </div>
     """, unsafe_allow_html=True)
 
-    # การ์ด Logistic Regression
     st.markdown("""
         <div class="content-card">
             <h3>Logistic Regression (Regression)</h3>
@@ -194,40 +242,24 @@ elif menu == "3. สร้างโมเดล ML":
             <hr style="border-color: #e2e8f0; margin: 12px 0;">
             <p style="margin: 0; font-size: 14px;"><b>ข้อดี:</b> เข้าใจง่ายและเร็ว | <b>ข้อจำกัด:</b> ความสัมพันธ์ที่ซับซ้อนอาจอธิบายได้ไม่ดี</p>
         </div>
-    """, unsafe_allow_html=True)
-
-    # การ์ด KNN
-    st.markdown("""
         <div class="content-card">
             <h3>KNN (K-Nearest Neighbors)</h3>
             <p>จัดประเภทข้อมูลใหม่โดยดูเพื่อนบ้านที่ใกล้ที่สุดจำนวน k ตัว แล้วให้คลาสที่พบมากที่สุดเป็นคำตอบ จึงเป็น Instance-based Learning</p>
             <hr style="border-color: #e2e8f0; margin: 12px 0;">
             <p style="margin: 0; font-size: 14px;"><b>ข้อดี:</b> แนวคิดง่าย ไม่ซับซ้อน | <b>ข้อจำกัด:</b> ต้องปรับสเกลและอาจช้าหากข้อมูลจำนวนมาก</p>
         </div>
-    """, unsafe_allow_html=True)
-
-    # การ์ด Decision Tree
-    st.markdown("""
         <div class="content-card">
             <h3>Decision Tree</h3>
             <p>แบ่งข้อมูลด้วยเงื่อนไขเป็นลำดับชั้นคล้ายต้นไม้ โดยเลือก feature/threshold ที่ช่วยแยกคลาสได้ดี</p>
             <hr style="border-color: #e2e8f0; margin: 12px 0;">
             <p style="margin: 0; font-size: 14px;"><b>ข้อดี:</b> อธิบายง่าย ไม่จำเป็นต้อง scale | <b>ข้อจำกัด:</b> ถ้าต้นไม้ลึกเกินไปอาจเกิด Overfitting</p>
         </div>
-    """, unsafe_allow_html=True)
-
-    # การ์ด SVM
-    st.markdown("""
         <div class="content-card">
             <h3>SVM (Support Vector Machine)</h3>
             <p>ค้นหาเส้นแบ่ง (Hyperplane) ที่สร้างระยะห่าง (Margin) ระหว่างกลุ่มข้อมูลให้กว้างที่สุดเพื่อให้การทำนายมีความแม่นยำสูง</p>
             <hr style="border-color: #e2e8f0; margin: 12px 0;">
             <p style="margin: 0; font-size: 14px;"><b>ข้อดี:</b> มีประสิทธิภาพสูงในพื้นที่หลายมิติ | <b>ข้อจำกัด:</b> ใช้เวลาเทรนค่อนข้างนานกับข้อมูลขนาดใหญ่</p>
         </div>
-    """, unsafe_allow_html=True)
-
-    # การ์ด Ensemble (Random Forest)
-    st.markdown("""
         <div class="content-card">
             <h3>Ensemble (Random Forest)</h3>
             <p>รวมพลังต้นไม้ตัดสินใจหลายๆ ต้นมาร่วมกันโหวตผลลัพธ์ (Bagging) เพื่อลดความผิดพลาดและเพิ่มความแม่นยำ</p>
