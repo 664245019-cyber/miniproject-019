@@ -97,4 +97,14 @@ elif menu == "4. ประเมินโมเดล":
     st.write("จากผลลัพธ์พบว่าโมเดลมีความแม่นยำสูง สามารถใช้เป็นเครื่องมือคัดกรองเบื้องต้นได้จริง")
 
 elif menu == "5. เว็บแอปใช้งาน":
-    # ... (ส่วนเดิมของข้อ 5)
+    st.header("5. Streamlit Application")
+    with st.form("input_form"):
+        col1, col2 = st.columns(2)
+        p = col1.number_input('ตั้งครรภ์', 0, 20, 1)
+        g = col1.number_input('ระดับน้ำตาล', 0, 200, 120)
+        bp = col2.number_input('ความดัน', 0, 140, 70)
+        bmi = col2.number_input('BMI', 0.0, 70.0, 25.0)
+        if st.form_submit_button("ทำนายผล"):
+            res = model.predict(scaler.transform([[p,g,bp,20,79,bmi,0.5,30]]))
+            if res[0] == 1: st.error("เสี่ยงเบาหวาน")
+            else: st.success("ปกติ")
