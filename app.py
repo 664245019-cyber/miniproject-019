@@ -1,3 +1,53 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+st.set_page_config(page_title="Diabetes AI Report", page_icon="🩺", layout="wide")
+
+# เพิ่มสีสันให้ Sidebar และเมนู
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        background-color: #f0f2f6;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# โหลดข้อมูล
+@st.cache_data
+def load_data():
+    names = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome']
+    df = pd.read_csv('diabetes.csv', names=names)
+    cols = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']
+    df[cols] = df[cols].replace(0, np.nan)
+    df.fillna(df.mean(), inplace=True)
+    return df
+
+df = load_data()
+X = df.drop('Outcome', axis=1)
+y = df['Outcome']
+scaler = StandardScaler()
+model = SVC(kernel='linear').fit(scaler.fit_transform(X), y)
+
+# --- Sidebar (Bar Menu) ---
+with st.sidebar:
+    st.title("🩺 Project Menu")
+    menu = st.radio(
+        "เลือกหัวข้อนำเสนอ:",
+        ["หน้าหลัก", "1. ปัญหาและ Dataset", "2. Data Preprocessing", "3. สร้างโมเดล ML", "4. ประเมินโมเดล", "5. เว็บแอปใช้งาน"],
+        index=0
+    )
+    st.markdown("---")
+    st.subheader("👨‍💻 ข้อมูลผู้พัฒนา")
+    st.caption("รหัส: [664245019]")
+    st.caption("ชื่อ: [นายคณิศร จันทรสูตร]")
+    st.caption("หมู่เรียน: [66/43]")
+
 # --- หน้า Content ที่เพิ่มเนื้อหาให้อัดแน่น ---
 if menu == "หน้าหลัก":
     st.title("🩺 Diabetes Prediction Project")
