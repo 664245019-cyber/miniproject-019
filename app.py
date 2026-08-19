@@ -15,16 +15,31 @@ import seaborn as sns
 st.set_page_config(page_title="Diabetes AI Report", page_icon="🩺", layout="wide")
 
 # --- ปรับ CSS ใหม่ให้อ่านง่าย ตัวหนังสือชัดเจน ---
+# --- ปรับ CSS ใหม่ บังคับสี Sidebar ให้สว่างและชัดเจน ---
 st.markdown("""
     <style>
     .main {
         background-color: #0f172a;
         color: #f8fafc;
     }
+    /* บังคับสีพื้นหลังและตัวหนังสือใน Sidebar ทั้งหมดให้ชัดเจน */
     [data-testid="stSidebar"] {
         background-color: #1e293b;
     }
-    /* แก้ไขสีการ์ดให้ตัวหนังสือสว่างและอ่านง่าย */
+    [data-testid="stSidebar"] span, 
+    [data-testid="stSidebar"] label, 
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] div, 
+    [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] h2 {
+        color: #f8fafc !important;
+    }
+    /* สีข้อความตัวเลือกเมนู Radio ให้สว่างโดดเด่น */
+    [data-testid="stSidebar"] .stRadio label {
+        color: #38bdf8 !important;
+        font-weight: 500;
+    }
+    /* สีกล่องการ์ดเนื้อหาหลัก */
     .card {
         background-color: #1e293b;
         padding: 25px;
