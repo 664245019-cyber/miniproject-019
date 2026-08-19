@@ -14,15 +14,13 @@ import seaborn as sns
 
 st.set_page_config(page_title="Diabetes AI Report", page_icon="🩺", layout="wide")
 
-# --- ปรับ CSS ใหม่ให้อ่านง่าย ตัวหนังสือชัดเจน ---
-# --- ปรับ CSS ใหม่ บังคับสี Sidebar ให้สว่างและชัดเจน ---
+# --- ปรับ CSS ---
 st.markdown("""
     <style>
     .main {
         background-color: #0f172a;
         color: #f8fafc;
     }
-    /* บังคับสีพื้นหลังและตัวหนังสือใน Sidebar ทั้งหมดให้ชัดเจน */
     [data-testid="stSidebar"] {
         background-color: #1e293b;
     }
@@ -34,12 +32,10 @@ st.markdown("""
     [data-testid="stSidebar"] h2 {
         color: #f8fafc !important;
     }
-    /* สีข้อความตัวเลือกเมนู Radio ให้สว่างโดดเด่น */
     [data-testid="stSidebar"] .stRadio label {
         color: #38bdf8 !important;
         font-weight: 500;
     }
-    /* สีกล่องการ์ดเนื้อหาหลัก */
     .card {
         background-color: #1e293b;
         padding: 25px;
@@ -84,7 +80,14 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-model = SVC(kernel='linear').fit(X_train_scaled, y_train)
+# เตรียม dictionary ของโมเดลทั้งหมด
+models = {
+    "KNN": KNeighborsClassifier(),
+    "Decision Tree": DecisionTreeClassifier(random_state=42),
+    "Regression (Logistic)": LogisticRegression(max_iter=500),
+    "SVM": SVC(kernel='linear'),
+    "Ensemble (Random Forest)": RandomForestClassifier(random_state=42)
+}
 
 # --- Sidebar ---
 with st.sidebar:
@@ -152,14 +155,6 @@ elif menu == "4. ประเมินโมเดล":
     st.header("4. การประเมินและเปรียบเทียบโมเดล")
     st.write("ตารางเปรียบเทียบค่าความแม่นยำ (Accuracy) ของแต่ละอัลกอริทึม:")
     
-    models = {
-        "KNN": KNeighborsClassifier(),
-        "Decision Tree": DecisionTreeClassifier(random_state=42),
-        "Regression (Logistic)": LogisticRegression(max_iter=500),
-        "SVM": SVC(kernel='linear'),
-        "Ensemble (Random Forest)": RandomForestClassifier(random_state=42)
-    }
-    
     results = []
     for name, m in models.items():
         m.fit(X_train_scaled, y_train)
@@ -171,26 +166,16 @@ elif menu == "4. ประเมินโมเดล":
     
     st.write("📈 **Confusion Matrix ของโมเดลหลัก (SVM):**")
     fig, ax = plt.subplots(figsize=(5, 3))
-    sns.heatmap(pd.crosstab(y_test, model.predict(X_test_scaled)), annot=True, fmt='d', cmap='Blues')
+    sns.heatmap(pd.crosstab(y_test, models["SVM"].predict(X_test_scaled)), annot=True, fmt='d', cmap='Blues')
     st.pyplot(fig)
 
 elif menu == "5. เว็บแอปใช้งาน":
     st.header("5. Streamlit Application (ระบบทำนายผลอัจฉริยะ)")
-    st.write("เลือกโมเดลที่ต้องการใช้งานและกรอกข้อมูลสุขภาพด้านล่างนี้:")
+    st.write("เลือกโมเดลที่ต้องการใช้งาน (หรือเลือก **รันทุกโมเดลพร้อมกัน**) และกรอกข้อมูลสุขภาพด้านล่างนี้:")
     
-    model_choice = st.radio(
-        "เลือกโมเดล Machine Learning:",
-        ["KNN", "Decision Tree", "Regression (Logistic)", "SVM", "Ensemble (Random Forest)"],
-        horizontal=True
-    )
-    
-    if model_choice == "KNN": active_model = KNeighborsClassifier()
-    elif model_choice == "Decision Tree": active_model = DecisionTreeClassifier(random_state=42)
-    elif model_choice == "Regression (Logistic)": active_model = LogisticRegression(max_iter=500)
-    elif model_choice == "SVM": active_model = SVC(kernel='linear')
-    else: active_model = RandomForestClassifier(random_state=42)
-    
-    active_model.fit(X_train_scaled, y_train)
+    # เพิ่มตัวเลือก "รันทุกโมเดลพร้อมกัน" เข้าไปในลิสต์
+    model_options = ["KNN", "Decision Tree", "Regression (Logistic)", "SVM", "Ensemble (Random Forest)", "🚀 รันทุกโมเดลพร้อมกัน"]
+    model_choice = st.radio("เลือกโหมดการทำนาย:", model_options, horizontal=True)
     
     with st.form("predict_form"):
         col1, col2 = st.columns(2)
@@ -200,19 +185,38 @@ elif menu == "5. เว็บแอปใช้งาน":
             bp = st.number_input('ความดันโลหิต (BloodPressure)', 0, 140, 70)
             skin = st.number_input('ความหนาผิวหนัง (SkinThickness)', 0, 100, 20)
         with col2:
-            ins = st.number_input('อินซูลิน (Insulin)', 0, 900, 79)
+            ins = st.number_input('ระดับอินซูลิน (Insulin)', 0, 900, 79)
             bmi = st.number_input('ดัชนีมวลกาย (BMI)', 0.0, 70.0, 25.0)
             dpf = st.number_input('ประวัติครอบครัว (DPF)', 0.0, 2.5, 0.5)
             age = st.number_input('อายุ (Age)', 1, 100, 30)
             
-        submit = st.form_submit_button(f"🚀 ประเมินความเสี่ยงด้วย {model_choice}", use_container_width=True)
+        submit = st.form_submit_button(f"🚀 ประเมินความเสี่ยง ({model_choice})", use_container_width=True)
         
     if submit:
         input_data = pd.DataFrame([[p, g, bp, skin, ins, bmi, dpf, age]], columns=X.columns)
-        prediction = active_model.predict(scaler.transform(input_data))
+        scaled_input = scaler.transform(input_data)
         
         st.markdown("---")
-        if prediction[0] == 1:
-            st.error(f"🚨 **ผลการทำนายด้วย {model_choice}:** พบความเสี่ยงเป็นโรคเบาหวาน (ควรพบแพทย์เพื่อตรวจวินิจฉัยเชิงลึก)")
+        
+        if model_choice == "🚀 รันทุกโมเดลพร้อมกัน":
+            st.subheader("📊 ผลการทำนายจากทุกโมเดลพร้อมกัน:")
+            compare_results = []
+            for name, m in models.items():
+                m.fit(X_train_scaled, y_train)
+                pred = m.predict(scaled_input)[0]
+                status = "🚨 พบความเสี่ยงเป็นเบาหวาน" if pred == 1 else "✅ ไม่พบความเสี่ยง (ปกติ)"
+                compare_results.append({"Model": name, "Prediction": status})
+            
+            res_table = pd.DataFrame(compare_results)
+            st.table(res_table)
+            st.info("💡 สังเกตว่าบางเคสข้อมูล โมเดลที่ต่างกันอาจให้ผลลัพธ์การทำนายที่แตกต่างกันได้ตามตรรกะของอัลกอริทึมนั้นๆ ครับ")
+        
         else:
-            st.success(f"✅ **ผลการทำนายด้วย {model_choice}:** ไม่พบความเสี่ยง (สุขภาพปกติ)")
+            active_model = models[model_choice]
+            active_model.fit(X_train_scaled, y_train)
+            prediction = active_model.predict(scaled_input)
+            
+            if prediction[0] == 1:
+                st.error(f"🚨 **ผลการทำนายด้วย {model_choice}:** พบความเสี่ยงเป็นโรคเบาหวาน (ควรพบแพทย์เพื่อตรวจวินิจฉัยเชิงลึก)")
+            else:
+                st.success(f"✅ **ผลการทำนายด้วย {model_choice}:** ไม่พบความเสี่ยง (สุขภาพปกติ)")
