@@ -2,9 +2,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.cluster import KMeans
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
@@ -35,13 +38,12 @@ df = load_data()
 X = df.drop('Outcome', axis=1)
 y = df['Outcome']
 
-# แบ่งชุดข้อมูลสำหรับเทรนและทดสอบโมเดล
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# เทรนโมเดลหลัก (SVM)
+# โมเดลหลักค่าเริ่มต้น (SVM)
 model = SVC(kernel='linear').fit(X_train_scaled, y_train)
 
 # --- Sidebar (Bar Menu) ---
@@ -61,50 +63,50 @@ with st.sidebar:
 # --- หน้า Content ---
 if menu == "หน้าหลัก":
     st.title("🩺 Diabetes Prediction Project")
-    st.markdown("### รายงานสรุปผลโปรเจ็ค Machine Learning เพื่อการคัดกรองเบาหวาน")
-    st.write("โปรเจ็คนี้พัฒนาขึ้นเพื่อประยุกต์ใช้โมเดล Machine Learning ในการทำนายความเสี่ยงโรคเบาหวานโดยใช้ข้อมูลสุขภาพที่เป็นมาตรฐานสากล")
+    st.markdown("### รายงานสรุปผลโปรเจ็ค Machine Learning ตามหัวข้อที่เรียน")
+    st.write("รวบรวมอัลกอริทึมการเรียนรู้ของเครื่อง (Machine Learning) ที่ได้ศึกษามาเพื่อใช้ในการวิเคราะห์และทำนายผล")
     st.image("https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80", use_container_width=True)
 
 elif menu == "1. ปัญหาและ Dataset":
     st.header("1. การกำหนดปัญหาและ Dataset")
     st.markdown("""
-    **ปัญหาที่พบ:** โรคเบาหวานเป็นภัยเงียบที่ไม่แสดงอาการในช่วงแรก การตรวจพบเร็วช่วยลดค่าใช้จ่ายในการรักษา
-    **Dataset ที่เลือกใช้:** Pima Indians Diabetes Dataset
+    **ปัญหาที่พบ:** โรคเบาหวานเป็นภัยเงียบ การตรวจพบเร็วช่วยลดความเสี่ยงและภาวะแทรกซ้อน
+    **Dataset ที่เลือกใช้:** Pima Indians Diabetes Database
     * **จำนวนตัวอย่าง:** 768 รายการ
-    * **ตัวแปรต้น (Features):** 8 ตัวแปรสุขภาพ ได้แก่ Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age
+    * **ตัวแปรต้น (Features):** 8 ตัวแปรสุขภาพ (Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DPF, Age)
     * **ตัวแปรตาม (Target):** Outcome (0 = ปกติ, 1 = เป็นเบาหวาน)
-    **เหตุผล:** ข้อมูลชุดนี้มีความสมบูรณ์ทางสถิติและเป็นที่ยอมรับในการเรียนรู้ Machine Learning ทั่วโลก
     """)
 
 elif menu == "2. Data Preprocessing":
     st.header("2. Data Preprocessing")
-    st.write("ข้อมูลดิบผ่านกระบวนการทำความสะอาดอย่างเป็นระบบ:")
     st.table(pd.DataFrame({
         "ขั้นตอน": ["จัดการ Missing Values", "จัดการค่า 0 ผิดปกติ", "Feature Scaling"],
-        "วิธีการ": ["ใช้การเติมค่าเฉลี่ย (Mean Imputation)", "เปลี่ยนค่า 0 ในคอลัมน์สุขภาพเป็น NaN", "ใช้ StandardScaler ปรับสเกลข้อมูลให้เป็นมาตรฐาน"],
-        "ผลลัพธ์": ["ข้อมูลไม่สูญหาย", "ข้อมูลสะอาดขึ้น", "ลดความเหลื่อมล้ำของข้อมูล"]
+        "วิธีการ": ["เติมค่าเฉลี่ย (Mean)", "เปลี่ยนค่า 0 เป็น NaN", "ใช้ StandardScaler"],
+        "ผลลัพธ์": ["ข้อมูลไม่สูญหาย", "ข้อมูลสะอาดขึ้น", "ปรับสเกลมาตรฐาน"]
     }))
-    st.write("ตัวอย่างข้อมูลที่ผ่านการทำ Preprocessing แล้ว:")
     st.dataframe(df.head(10), use_container_width=True)
 
 elif menu == "3. สร้างโมเดล ML":
-    st.header("3. การสร้างโมเดล Machine Learning")
+    st.header("3. อัลกอริทึมที่ได้เรียนรู้และนำมาใช้")
     st.markdown("""
-    **อัลกอริทึมหลัก:** Support Vector Machine (SVM)
-    * **ทำไมต้อง SVM:** เพราะมีประสิทธิภาพสูงในการแยกกลุ่มข้อมูล (Classification) ที่มีความซับซ้อน
-    * **Linear Kernel:** เราเลือกใช้ Linear Kernel เนื่องจากความสัมพันธ์ของตัวแปรมีความเป็นเส้นตรงค่อนข้างชัดเจน
-    * **Hyperplane:** หลักการคือการหาเส้นแบ่งที่ดีที่สุดระหว่างกลุ่ม Positive และ Negative โดยการรักษาระยะห่าง (Margin) ให้มากที่สุด
+    ตามหัวข้อบทเรียนประกอบด้วย:
+    1. **KNN (K-Nearest Neighbors):** จำแนกกลุ่มตามเพื่อนบ้านใกล้เคียง
+    2. **Decision Tree:** สร้างแผนผังการตัดสินใจจากเงื่อนไขข้อมูล
+    3. **Regression (Logistic Regression):** ทำนายผลลัพธ์แบบแบ่งกลุ่ม (Binary Classification)
+    4. **SVM (Support Vector Machine):** หาเส้นแบ่ง Hyperplane ที่ดีที่สุด
+    5. **K-Means:** การจัดกลุ่มข้อมูลแบบ Unsupervised Learning
+    6. **Ensemble (Random Forest):** การรวมพลังหลายต้นไม้เพื่อความแม่นยำสูง
     """)
 
 elif menu == "4. ประเมินโมเดล":
     st.header("4. การประเมินและเปรียบเทียบโมเดล")
-    st.write("เปรียบเทียบประสิทธิภาพระหว่างโมเดล Machine Learning หลายรูปแบบ:")
     
-    # เทรนและวัดผลหลายโมเดลเพื่อให้ตรงโจทย์การเปรียบเทียบ
     models = {
-        "SVM (Linear)": SVC(kernel='linear'),
-        "Random Forest": RandomForestClassifier(random_state=42),
-        "Logistic Regression": LogisticRegression(max_iter=500)
+        "KNN": KNeighborsClassifier(),
+        "Decision Tree": DecisionTreeClassifier(random_state=42),
+        "Regression (Logistic)": LogisticRegression(max_iter=500),
+        "SVM": SVC(kernel='linear'),
+        "Ensemble (Random Forest)": RandomForestClassifier(random_state=42)
     }
     
     results = []
@@ -117,45 +119,40 @@ elif menu == "4. ประเมินโมเดล":
     st.table(res_df)
     
     st.write("Confusion Matrix ของโมเดลหลัก (SVM):")
-    acc = accuracy_score(y_test, model.predict(X_test_scaled))
     fig, ax = plt.subplots(figsize=(5, 3))
-    sns.heatmap(pd.crosstab(y_test, model.predict(X_test_scaled)), annot=True, fmt='d', cmap='Blues', annot_kws={"size": 14})
+    sns.heatmap(pd.crosstab(y_test, model.predict(X_test_scaled)), annot=True, fmt='d', cmap='Blues')
     st.pyplot(fig)
 
 elif menu == "5. เว็บแอปใช้งาน":
     st.header("5. Streamlit Application (ระบบทำนายผล)")
-    st.write("เลือกโมเดล Machine Learning ที่ต้องการใช้ และกรอกข้อมูลสุขภาพให้ครบถ้วนทั้ง 8 ปัจจัย")
+    st.write("เลือกโมเดลตามหัวข้อที่เรียนเพื่อทดสอบทำนายผล:")
     
-    # ทำเป็นปุ่มเลือกเรียงกัน 3 อัน (Horizontal Radio)
+    # ดึงโมเดลตามเนื้อหาที่เรียนในรูป
     model_choice = st.radio(
-        "เลือกโมเดลสำหรับทำนายผล:",
-        ["SVM (Linear)", "Random Forest", "Logistic Regression"],
+        "เลือกโมเดล:",
+        ["KNN", "Decision Tree", "Regression (Logistic)", "SVM", "Ensemble (Random Forest)"],
         horizontal=True
     )
     
-    # กำหนดโมเดลตามปุ่มที่เลือก
-    if model_choice == "SVM (Linear)": 
-        active_model = SVC(kernel='linear')
-    elif model_choice == "Random Forest": 
-        active_model = RandomForestClassifier(random_state=42)
-    else: 
-        active_model = LogisticRegression(max_iter=500)
+    if model_choice == "KNN": active_model = KNeighborsClassifier()
+    elif model_choice == "Decision Tree": active_model = DecisionTreeClassifier(random_state=42)
+    elif model_choice == "Regression (Logistic)": active_model = LogisticRegression(max_iter=500)
+    elif model_choice == "SVM": active_model = SVC(kernel='linear')
+    else: active_model = RandomForestClassifier(random_state=42)
     
     active_model.fit(X_train_scaled, y_train)
     
     with st.form("predict_form"):
         col1, col2 = st.columns(2)
-        
         with col1:
-            p = st.number_input('จำนวนครั้งที่ตั้งครรภ์ (Pregnancies)', 0, 20, 1)
-            g = st.number_input('ระดับน้ำตาลในเลือด (Glucose)', 0, 200, 110)
+            p = st.number_input('ตั้งครรภ์ (Pregnancies)', 0, 20, 1)
+            g = st.number_input('ระดับน้ำตาล (Glucose)', 0, 200, 110)
             bp = st.number_input('ความดันโลหิต (BloodPressure)', 0, 140, 70)
             skin = st.number_input('ความหนาผิวหนัง (SkinThickness)', 0, 100, 20)
-            
         with col2:
-            ins = st.number_input('ระดับอินซูลิน (Insulin)', 0, 900, 79)
+            ins = st.number_input('อินซูลิน (Insulin)', 0, 900, 79)
             bmi = st.number_input('ดัชนีมวลกาย (BMI)', 0.0, 70.0, 25.0)
-            dpf = st.number_input('ประวัติครอบครัว (DiabetesPedigreeFunction)', 0.0, 2.5, 0.5)
+            dpf = st.number_input('ประวัติครอบครัว (DPF)', 0.0, 2.5, 0.5)
             age = st.number_input('อายุ (Age)', 1, 100, 30)
             
         submit = st.form_submit_button(f"🚀 ประเมินความเสี่ยงด้วย {model_choice}", use_container_width=True)
@@ -166,6 +163,6 @@ elif menu == "5. เว็บแอปใช้งาน":
         
         st.markdown("---")
         if prediction[0] == 1:
-            st.error(f"🚨 **ผลการทำนายด้วย {model_choice}:** พบความเสี่ยงเป็นโรคเบาหวาน (ควรปรึกษาแพทย์เพื่อตรวจวินิจฉัยเชิงลึก)")
+            st.error(f"🚨 **ผลการทำนายด้วย {model_choice}:** พบความเสี่ยงเป็นโรคเบาหวาน")
         else:
-            st.success(f"✅ **ผลการทำนายด้วย {model_choice}:** ไม่พบความเสี่ยง (สุขภาพปกติ)")
+            st.success(f"✅ **ผลการทำนายด้วย {model_choice}:** ไม่พบความเสี่ยง (ปกติ)")
