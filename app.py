@@ -145,7 +145,7 @@ menu = st.session_state.menu
 if menu == "หน้าหลัก":
     st.title("🩺 Diabetes Prediction & AI Analytics")
     st.markdown("#### ระบบวิเคราะห์และทำนายโรคเบาหวานด้วย Machine Learning สมัยใหม่")
-    st.write("ยินดีต้อนรับสู่รายงานสรุปโปรเจ็คเชิงวิเคราะห์ ออกแบบด้วยธีม Modern Dashboard ทันสมัยและอ่านง่าย")
+    st.write("ยินดีต้อนรับสู่รายงานสรุปโปรเจ็คเชิงวิเคราะห์")
     st.image("https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80", use_container_width=True)
 
 elif menu == "1. ปัญหาและ Dataset":
@@ -288,7 +288,7 @@ elif menu == "4. ประเมินโมเดล":
     st.pyplot(fig)
 
 elif menu == "5. เว็บแอปใช้งาน":
-    st.header("5. Streamlit Application (ระบบทำนายผลอัจฉริยะ)")
+    st.header("5. Streamlit Application")
     st.write("เลือกโมเดลที่ต้องการใช้งาน (หรือเลือก **รันทุกโมเดลพร้อมกัน**) และกรอกข้อมูลสุขภาพด้านล่างนี้:")
     
     model_options = ["KNN", "Decision Tree", "Regression (Logistic)", "SVM", "Ensemble (Random Forest)", "🚀 รันทุกโมเดลพร้อมกัน"]
